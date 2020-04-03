@@ -96,8 +96,13 @@ with dialog_planner('tf-pointer-tied') as m_tied:
     m_tied.emb(512).hidden(2048).layers(L).dropout(0.1).vocab(mrs)\
         .beam_search().tie_embs()
 
+def make_prefix(suffix):
+    def prefix():
+        return f"adam_lr={float(LR)}_layers={int(L)}{suffix}"
+    return prefix
 
 for model, suffix in [[m, ''], [m_tied, '_tied']]:
+    
 
     opt = Adam(LR)
     with plum2.trainer(f"train{suffix}") as trainer:
@@ -111,9 +116,8 @@ for model, suffix in [[m, ''], [m_tied, '_tied']]:
                     lambda m, b, fs: b['pretty_target'],
                     lambda m, b, fs: b['da'],
                 )
-            ).save_prefix(
-                lambda : f"adam_lr={float(LR)}_layers={int(L)}{suffix}"
-            ).save_best()
+            ).save_prefix(make_prefix(suffix))\
+            .save_best()
 
         model_path = (save_dir / f'trainer{suffix}'/ 'model_checkpoints' 
             / 'optimal.pkl')
