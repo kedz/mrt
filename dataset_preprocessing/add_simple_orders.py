@@ -6,7 +6,7 @@ import math
 import numpy as np
 from itertools import permutations
 from collections import Counter
-from permmr.viggo_tagging_rules import get_specifier_feats
+from mrt.viggo.tagging_rules import get_specifier_feats
 import shutil
 import tempfile
 import random
@@ -26,6 +26,7 @@ def lm_score(items, lm):
     return sum(lm[t1][t2] for t1, t2 in bigram_iter(items))
     
 def get_freq_mappings(path, seq_key):
+    unifreq = defaultdict(int)
     freq = defaultdict(lambda : defaultdict(int))
     lm = defaultdict(lambda : defaultdict(int))
 
@@ -35,6 +36,9 @@ def get_freq_mappings(path, seq_key):
         oracle_order = tuple(ex['source']['sequence'][seq_key][2:])
         canon_rep = tuple(sorted(oracle_order))
         freq[canon_rep][oracle_order] += 1
+
+        for sf in set(oracle_order):
+            unifreq[sf] += 1
 
         for t1,t2 in bigram_iter(oracle_order):
             lm[t1][t2] += 1
@@ -61,9 +65,10 @@ def get_freq_mappings(path, seq_key):
             I = np.argsort(lm_scores)            
             co2sfo[canon_order] = max_items[I[-1]][0]
 
-    return co2sfo, lm
+    return co2sfo, lm, unifreq
 
-def add_orderings(path, sf_map, sf_lm, s_map, s_lm, orig=False):
+def add_orderings(path, sf_map, sf_lm, sf_freq, s_map, s_lm, 
+                  make_inc_order_fixed, make_dec_order_fixed, orig=False):
     
     suffix = '' if not orig else '_orig'
     sf_count = 0
@@ -100,6 +105,24 @@ def add_orderings(path, sf_map, sf_lm, s_map, s_lm, orig=False):
                 ex['source']['sequence']['oracle'+suffix][:2] + random_order
             )
 
+            inc_order = sorted(random_order, key=lambda x: sf_freq[x])
+            dec_order = sorted(random_order, key=lambda x: sf_freq[x], reverse=True)
+
+            ex['source']['sequence']['inc_order'+ suffix] = (
+                ex['source']['sequence']['oracle'+suffix][:2] + inc_order
+            )
+
+            ex['source']['sequence']['dec_order'+ suffix] = (
+                ex['source']['sequence']['oracle'+suffix][:2] + dec_order
+            )
+
+            inc_order_fixed = make_inc_order_fixed(ex['source']['mr' + suffix])
+            ex['source']['sequence']['inc_order_fixed'+ suffix] = \
+                inc_order_fixed
+            dec_order_fixed = make_dec_order_fixed(ex['source']['mr' + suffix])
+            ex['source']['sequence']['dec_order_fixed'+ suffix] = \
+                dec_order_fixed
+
             print(json.dumps(ex), file=tmp_file)
 
         tmp_file.flush()
@@ -121,7 +144,6 @@ def add_uncorrected_orderings(path, sf_map, sf_lm, s_map, s_lm):
                 x.split('=')[0] if x.split('=')[0] not in LIST_SLOTS else x
                 for x in correct_order]
             
-
             orig_oracle = []
             for k, v in ex['source']['mr_orig']['slots'].items():
                 if k == 'rating':
@@ -248,23 +270,71 @@ def find_best_constrained_perm(sf_items, s_order, lm):
                     best_perm = sf_order
     return best_perm
 
-def find_best_perm(items, lm, constraint=None):
-    max_score = float("-inf")
-    max_perm = None
-    ss = math.factorial(len(items))
+def make_fixed_order_template(path):
+    freqs = defaultdict(int)
+    slot_counts = defaultdict(int)
+    max_lens = defaultdict(int)
+    for ex in example_iter(path):
+        for slot in ex['source']['mr']['slots'].keys():
+            slot_counts[slot] += 1
+            if slot in ['genres', 'player_perspective', 'platforms']:
+                max_lens[slot] = max(
+                    max_lens[slot], len(ex['source']['mr']['slots'][slot]))
+                for v in ex['source']['mr']['slots'][slot]:
+                    freqs[f'{slot}={v}'] += 1
+            elif slot == 'specifier':
+                v = ex['source']['mr']['slots'][slot]
+                freqs[f'{slot}={get_specifier_feats(v)}'] +=1
+            else:
+                v = ex['source']['mr']['slots'][slot]
+                freqs[f'{slot}={v}'] += 1
+                
 
-    for p, perm in enumerate(permutations(items), 1):
-        print(f"{p}/{ss}", flush=True, end='\r')
-        if constraint is not None:
-            perm_s = tuple([x.split('=')[0] for x in perm])
-            if perm_s != constraint:
+    template = []
+    for slot in sorted(slot_counts.keys(), key=lambda x: slot_counts[x]):
+        if slot == 'rating':
+            continue
+        elif slot in max_lens:
+            for i in range(1, max_lens[slot] + 1):
+                template.append(f'{slot}=N/A-{i}')
+        else:
+            template.append(f'{slot}=N/A')
+
+    def make_inc_order_fixed(mr):
+        seq = list(template)
+        for slot in mr['slots'].keys():
+            if slot in ['genres', 'player_perspective', 'platforms']:
+                vals = mr['slots'][slot]
+                vals = sorted(vals, key=lambda x: freqs[f'{slot}={x}'])
+                start_idx = seq.index(f'{slot}=N/A-1')
+                for idx, val in enumerate(vals, start_idx):
+                    seq[idx] = f'{slot}={val}'
+                    
+            elif slot == 'specifier':
+                idx = seq.index(f'{slot}=N/A')
+                seq[idx] = f'{slot}={get_specifier_feats(mr["slots"][slot])}'
+                
+            elif slot == 'rating':
                 continue
-        score = lm_score(perm, lm)
-        if score > max_score:
-            max_score = score
-            max_perm = perm
-    print(' ' * 79, end='\r')
-    return max_perm
+            elif slot in ['name', 'developer', 'release_year', 
+                          'exp_release_date']:
+                v = mr['slots'][slot]
+                if v != '':
+                    v = 'PLACEHOLDER'
+                idx = seq.index(f'{slot}=N/A')
+                seq[idx] = f'{slot}={v}'
+            else:
+                idx = seq.index(f'{slot}=N/A')
+                seq[idx] = f'{slot}={mr["slots"][slot]}'
+
+        return [mr['da'], f"rating={mr['slots'].get('rating', 'N/A')}"] + seq
+
+    def make_dec_order_fixed(mr):
+        inc_order_fixed = make_inc_order_fixed(mr)
+        dec_order_fixed = inc_order_fixed[:2] + inc_order_fixed[2:][::-1]
+        return dec_order_fixed
+
+    return make_inc_order_fixed, make_dec_order_fixed
     
 def main():
     parser = argparse.ArgumentParser()
@@ -274,16 +344,24 @@ def main():
 
     args = parser.parse_args()
 
-    sf_map, sf_lm = get_freq_mappings(args.train, 'oracle')
-    s_map, s_lm = get_freq_mappings(args.train, 'oracle_slots')
+    sf_map, sf_lm, sf_freqs = get_freq_mappings(args.train, 'oracle')
+    s_map, s_lm, s_freqs = get_freq_mappings(args.train, 'oracle_slots')
+
+    inc_order_fixed, dec_order_fixed = make_fixed_order_template(args.train)
 
     add_uncorrected_orderings(args.valid, sf_map, sf_lm, s_map, s_lm)
     add_uncorrected_orderings(args.test, sf_map, sf_lm, s_map, s_lm)
-    add_orderings(args.valid, sf_map, sf_lm, s_map, s_lm, orig=False)
-    add_orderings(args.valid, sf_map, sf_lm, s_map, s_lm, orig=True)
-    add_orderings(args.test, sf_map, sf_lm, s_map, s_lm, orig=False)
-    add_orderings(args.test, sf_map, sf_lm, s_map, s_lm, orig=True)
-    add_orderings(args.train, sf_map, sf_lm, s_map, s_lm, orig=False)
+
+    add_orderings(args.valid, sf_map, sf_lm, sf_freqs, s_map, s_lm, 
+                  inc_order_fixed, dec_order_fixed, orig=False)
+    add_orderings(args.valid, sf_map, sf_lm, sf_freqs, s_map, s_lm,
+                  inc_order_fixed, dec_order_fixed, orig=True)
+    add_orderings(args.test, sf_map, sf_lm, sf_freqs, s_map, s_lm,
+                  inc_order_fixed, dec_order_fixed, orig=False)
+    add_orderings(args.test, sf_map, sf_lm, sf_freqs, s_map, s_lm,
+                  inc_order_fixed, dec_order_fixed, orig=True)
+    add_orderings(args.train, sf_map, sf_lm, sf_freqs, s_map, s_lm,
+                  inc_order_fixed, dec_order_fixed, orig=False)
 
 if __name__ == '__main__':
     main() 

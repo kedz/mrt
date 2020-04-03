@@ -5,7 +5,8 @@ from pathlib import Path
 import re
 from nltk import word_tokenize
 from nltk.tokenize import sent_tokenize
-from permmr.viggo_tagging_rules import tag_slots, tags2mrseq, slots2mr, get_specifier_feats
+from mrt.viggo.tagging_rules import (
+    tag_slots, tags2mrseq, slots2mr, get_specifier_feats)
 
 CATEGORICAL = ["name", "developer", "release_year", "exp_release_date", 
                "esrb", "has_multiplayer", "available_on_steam",
@@ -172,6 +173,8 @@ def preprocess_example(mr_line, utt_line, CORRECT):
             if s not in new_mr['slots']:
                 new_mr['slots'][s] = []
             new_mr['slots'][s].append(f)
+        elif s == 'specifier':
+            new_mr['slots']['specifier'] = mr['slots']['specifier']
         else:
             if f == 'PLACEHOLDER':
                 f = mr['slots'][s]
