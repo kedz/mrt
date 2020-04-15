@@ -1,3 +1,8 @@
+import re
+from nltk import word_tokenize
+from nltk.tokenize import sent_tokenize
+
+
 def check_name(tokens, tags):
     for i, t in enumerate(tokens):
         if t == "NAME":
@@ -5628,3 +5633,252 @@ def get_specifier_feats(specifier):
     sup_feat = 'S' if 'worst' in specifier or specifier[-2:] == 'st' else 'R'
     start_feat = 'V' if specifier[0] in 'aeiou' else 'C'
     return f'SPECIFIER_{start_feat}_{sup_feat}'
+
+def tokenize(text):
+    delex_ref = text
+    delex_ref = re.sub(r"fps\.", r"fp__ __s.", delex_ref)
+    delex_ref = re.sub(r"fps", r"fp__ __s", delex_ref)
+    delex_ref = re.sub(r"FPS\.", r"FP__ __S.", delex_ref)
+    delex_ref = re.sub(r"FPS", r"FP__ __S", delex_ref)
+    delex_ref = re.sub(r"(\w)/(\w)", r"\1 / \2", delex_ref)
+    delex_ref = re.sub(r"(\w)-(\w)", r"\1 - \2", delex_ref)
+    delex_sents = sent_tokenize(delex_ref)
+    delex_tokens = " <sent> ".join(
+        [" ".join(word_tokenize(delex_sent)) 
+         for delex_sent in delex_sents]).split()
+
+    return delex_tokens
+
+
+LEXICON = {
+    "name": [
+        'Age of Empires II: The Age of Kings',
+        'God of War',
+        'Stronghold 2',
+        'Rollcage',
+        "Alan Wake's American Nightmare",
+        'Never Alone',
+        'Superhot',
+        'Mass Effect 2',
+        'The Last of Us',
+        'The Witcher 3: Wild Hunt',
+        'Portal 2',
+        'Warcraft III: Reign of Chaos',
+        'Tomb Raider: The Angel of Darkness',
+        'The Wolf Among Us',
+        'Ancient Cities',
+        'Shadow of the Tomb Raider',
+        "Assassin's Creed II",
+        'RollerCoaster Tycoon',
+        'Need for Speed: Most Wanted',
+        'StarCraft',
+        "Sid Meier's Civilization V",
+        "Tom Clancy's Splinter Cell: Chaos Theory",
+        'Grand Theft Auto V',
+        "Tom Clancy's The Division",
+        "Assassin's Creed Chronicles: India",
+        'Football Manager 2015',
+        'Call of Duty: Advanced Warfare',
+        'Anthem',
+        'Metro 2033',
+        'Need for Speed: Shift',
+        'Transport Tycoon',
+        'The Vanishing of Ethan Carter',
+        'World of Warcraft',
+        'Undertale',
+        'Rise of the Tomb Raider',
+        'Diablo II',
+        'Worms: Reloaded',
+        "Uncharted 4: A Thief's End",
+        'Battlefield V',
+        "Mirror's Edge Catalyst",
+        'F1 2014',
+        "Hellblade: Senua's Sacrifice",
+        'Rocket League',
+        'Small World 2',
+        'Tomb Raider: The Last Revelation',
+        'Might & Magic: Heroes VI',
+        'Driver',
+        'NBA 2K19',
+        'The Sims',
+        'Heroes of Might and Magic III: The Restoration of Erathia',
+        'Spider-Man',
+        'Tetris',
+        'Final Fantasy VII',
+        'Lara Croft and the Temple of Osiris',
+        'Little Nightmares',
+        'The Forest of Doom',
+        'Dirt: Showdown',
+        'Super Bomberman',
+        'A Way Out',
+        'Need for Speed: The Run',
+        'Metal Gear Solid 3: Snake Eater',
+        'The Legend of Zelda: Ocarina of Time',
+        'Metroid Prime Pinball',
+        'MotorStorm: Apocalypse',
+        'Horizon: Zero Dawn',
+        'Assetto Corsa',
+        'Payday 2',
+        'Mafia',
+        'Half-Life 2',
+        'Skyforge',
+        'Metro Exodus',
+        'Bus Driver',
+        'Commandos: Behind Enemy Lines',
+        'Hitman 2',
+        'Max Payne',
+        'SpellForce 3',
+        "Tony Hawk's Pro Skater 3",
+        'Dance Dance Revolution Universe 3',
+        'World of Warcraft: Battle for Azeroth',
+        'Life is Strange',
+        'Need for Speed: Payback',
+        'Guitar Hero: Smash Hits',
+        'Crysis',
+        'The Elder Scrolls V: Skyrim',
+        'Ori and the Blind Forest',
+        'Far Cry 3',
+        'BioShock',
+        'Euro Truck Simulator',
+        'Silent Hill 2',
+        'Madden NFL 15',
+        "Age of Wonders II: The Wizard's Throne",
+        'Trivial Pursuit',
+        'Layers of Fear',
+        'The Room',
+        'Outlast II',
+        'FIFA 12',
+        'Little Big Adventure',
+        'NBA 2K16',
+        'The Crew 2',
+        'Nightshade',
+        'Resident Evil 4',
+        'Quantum Break',
+        'The Elder Scrolls Online',
+        'NHL 15',
+        'Super Mario World',
+        'TrackMania Turbo',
+    ],
+    "developer": [
+        "Ivory Tower",
+        "Adeline Software International",
+        "EA Canada",
+        "CD Projekt RED",
+        "Fuse Games",
+        "Ghost Games",
+        "Upper One Games",
+        "4A Games",
+        "Beenox",
+        "Blizzard Entertainment",
+        "Bethesda Game Studios",
+        "Ensemble Studios",
+        "Blizzard North",
+        "Neversoft Entertainment",
+        "Visual Concepts",
+        "Naughty Dog",
+        "Nadeo",
+        "Core Design",
+        "EA Digital Illusions CE",
+        "Crytek Frankfurt",
+        "Spectrum HoloByte, Inc.",
+        "SCS Software",
+        "Black Hole Entertainment",
+        "Dontnod Entertainment",
+        "Nintendo EAD",
+        "Konami Computer Entertainment Japan",
+        "Red Entertainment Corporation",
+        "Rockstar North",
+        "Firaxis Games",
+        "Allods Online",
+        "Chris Sawyer",
+        "Capcom Production Studio 4",
+        "Kunos Simulazioni",
+        "SIE Santa Monica Studio",
+        "Konami",
+        "Uncasual Games",
+        "Loki Software",
+        "Firebrand Games",
+        "Massive Entertainment",
+        "Telltale Games",
+        "Electronic Arts",
+        "Overkill Software",
+        "Sports Interactive",
+        "Firefly Studios",
+        "Eidos Montréal",
+        "Spectrum HoloByte, Inc",
+        "Sledgehammer Games",
+        "Fireproof Games",
+        "Days of Wonder",
+        "Codemasters Birmingham",
+        "Konami Computer Entertainment Tokyo",
+        "Ninja Theory",
+        "Crystal Dynamics",
+        "Team17 Digital Ltd",
+        "Codemasters Southam",
+        "Tarsier Studios",
+        "Psyonix",
+        "Hazelight Studios",
+        "Hudson Soft",
+        "EA Redwood Shores",
+        "Valve Corporation",
+        "Slightly Mad Studios",
+        "Ubisoft Montreal",
+        "Tin Man Games",
+        "Illusion Softworks",
+        "Reflections Interactive",
+        "tobyfox",
+        "Moon Studios",
+        "MicroProse",
+        "Red Barrels",
+        "SUPERHOT Team",
+        "Evolution Studios",
+        "Pyro Studios",
+        "Square",
+        "Climax Studios",
+        "ZeniMax Online Studios",
+        "2K Boston",
+        "The Astronauts",
+        "Guerrilla Games",
+        "Triumph Studios",
+        "Grimlore Games",
+        "Bloober Team",
+        "EA Tiburon",
+        "Remedy Entertainment",
+        "IO Interactive",
+        "BioWare",
+        "Insomniac Games",
+        "Attention To Detail",
+        "Maxis",
+        "Ubisoft Massive",
+
+    ],
+}
+
+DEVELOPER_RE = "|".join([re.escape(dev) for dev in LEXICON['developer']])
+NAME_RE = "|".join([re.escape(name) for name in LEXICON['name']])
+
+
+def delexicalize(text, release_year=None, exp_release_date=None,
+                 specifier=None):
+
+    text = re.sub(DEVELOPER_RE, "DEVELOPER", text, flags=re.I)
+    text = re.sub(NAME_RE, "NAME", text, flags=re.I)
+
+    if exp_release_date and exp_release_date != '':
+        text = re.sub(re.escape(exp_release_date), "EXP_RELEASE_DATE", text,
+                      flags=re.I)
+    if release_year and release_year != '':
+        text = re.sub(re.escape(release_year), "RELEASE_YEAR", text,
+                      flags=re.I)
+
+    if specifier and specifier != '':
+        specifier_feats = get_specifier_feats(specifier)
+        specifier_re = re.escape(specifier.replace('_', ' ').replace('-', ' '))
+        text = re.sub(specifier_re, specifier_feats, text, flags=re.I)
+
+    if exp_release_date == '' or release_year == '':
+        print(text)
+        print("!")
+
+    return text
+
