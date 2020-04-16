@@ -914,13 +914,11 @@ def check_opts(tokens, tags):
         if t == 'mac':
             tags[i] = 'has_mac_release=yes'
         if tokens[i-6:i+1] == ['on', 'steam', ',', 'linux', ',', 'or', 'mac']:
-            print("FIRING")
             tags[i] = 'has_mac_release=yes'
             tags[i-3] = 'has_linux_release=yes'
             tags[i-5] = 'available_on_steam=yes'
 
         if tokens[i-7:i+1] == ['not', 'on', 'steam', ',', 'linux', ',', 'or', 'mac']:
-            print("FIRING")
             tags[i] = 'has_mac_release=no'
             tags[i-3] = 'has_linux_release=no'
             tags[i-5] = 'available_on_steam=no'
@@ -929,7 +927,6 @@ def check_opts(tokens, tags):
 
 
         if tokens[i-8:i+1] == ['not', 'available', 'on', 'steam', ',', 'linux', ',', 'or', 'mac']:
-            print("FIRING")
             tags[i] = 'has_mac_release=no'
             tags[i-3] = 'has_linux_release=no'
             tags[i-5] = 'available_on_steam=no'
@@ -1437,11 +1434,9 @@ def check_opts(tokens, tags):
 
 
         if tokens[i-2:i+1] == ['available','on', 'steam']: 
-            print("HERE!")
             tags[i] = 'available_on_steam=yes'
             tags[i-1] = 'available_on_steam=yes' 
         if tokens[i-3:i+1] == ['not', 'available', 'on', 'steam']:
-            print("THEN ME")
             tags[i-3] = 'available_on_steam=no'
             tags[i-2] = 'available_on_steam=no'
             tags[i-1] = 'available_on_steam=no'

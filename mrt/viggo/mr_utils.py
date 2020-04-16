@@ -2,6 +2,7 @@ from nltk import word_tokenize
 from nltk.tokenize import sent_tokenize
 import random
 import re
+from warnings import warn
 
 from mrt.viggo.meta import (
     CATEGORICAL_SLOTS, LIST_SLOTS, LEXICON, DEVELOPER_TOKENS, SRT_NAME_TOKENS,
@@ -88,9 +89,10 @@ def lexicalize_string(text, name=None, developer=None, release_year=None,
 
     return text
 
-def linearize_mr(mr, delex=True, order='random', return_header=True):
+def linearize_mr(mr, delex=False, order='random', return_header=True,
+                 freq_info=None):
     da = mr['da']
-    rating = mr['slots'].get('rating', 'N/A')
+    rating = f"rating={mr['slots'].get('rating', 'N/A')}"
     slot_fillers = []
     for slot, filler in mr['slots'].items():
         if slot == 'rating':
@@ -104,8 +106,122 @@ def linearize_mr(mr, delex=True, order='random', return_header=True):
         else:
             slot_fillers.append(f'{slot}={filler}')
 
+    if delex:
+        for i, t in enumerate(slot_fillers):
+            if t.startswith('name'):
+                slot_fillers[i] = 'name=PLACEHOLDER'
+            if t.startswith('developer'):
+                slot_fillers[i] = 'developer=PLACEHOLDER'
+            if t.startswith('release_year'):
+                slot_fillers[i] = 'release_year=PLACEHOLDER'
+            if t.startswith('exp_release_date'):
+                slot_fillers[i] = 'exp_release_date=PLACEHOLDER'
+
     if order == 'random':
         random.shuffle(slot_fillers)
+
+    if order == 'inc_freq':
+        genres = [x for x in slot_fillers if x.startswith('genres')]
+        genres = sorted(
+            genres, 
+            key=lambda x: freq_info['delex_slot_filler_counts'][x])
+        platforms = [x for x in slot_fillers if x.startswith('platforms')]
+        platforms = sorted(
+            platforms, 
+            key=lambda x: freq_info['delex_slot_filler_counts'][x])
+        player_perspective = [x for x in slot_fillers 
+                              if x.startswith('player_perspective')]
+        player_perspective = sorted(
+            player_perspective, 
+            key=lambda x: freq_info['delex_slot_filler_counts'][x])
+
+        nonlist = [x for x in slot_fillers 
+            if x not in genres + platforms + player_perspective]
+
+        slot_fillers = sorted(
+            nonlist + genres + platforms + player_perspective,
+            key=lambda x: freq_info['slot_counts'][x.split("=")[0]])
+
+    if order == 'dec_freq':
+        genres = [x for x in slot_fillers if x.startswith('genres')]
+        genres = sorted(
+            genres, 
+            key=lambda x: freq_info['delex_slot_filler_counts'][x],
+            reverse=True)
+        platforms = [x for x in slot_fillers if x.startswith('platforms')]
+        platforms = sorted(
+            platforms, 
+            key=lambda x: freq_info['delex_slot_filler_counts'][x],
+            reverse=True)
+        player_perspective = [x for x in slot_fillers 
+                              if x.startswith('player_perspective')]
+        player_perspective = sorted(
+            player_perspective, 
+            key=lambda x: freq_info['delex_slot_filler_counts'][x],
+            reverse=True)
+
+        nonlist = [x for x in slot_fillers 
+            if x not in genres + platforms + player_perspective]
+
+        slot_fillers = sorted(
+            nonlist + genres + platforms + player_perspective,
+            key=lambda x: freq_info['slot_counts'][x.split("=")[0]],
+            reverse=True)
+    if order == 'inc_freq_fixed':
+        fixed_slot_fillers = []
+        for slot, _ in sorted(freq_info['slot_counts'].items(),
+                              key=lambda x: x[1]):
+            if slot in LIST_SLOTS:
+
+                fillers = [f'{slot}={x}' for x in mr['slots'].get(slot, [])]
+                fillers = sorted(
+                    fillers,
+                    key=lambda x: freq_info['delex_slot_filler_counts'][x])
+                r = freq_info["list_slot_max_lengths"][slot]
+                fixed_slot_fillers.extend(fillers)
+                if len(fillers) < r:
+                    fixed_slot_fillers.extend(
+                        [f'{slot}=N/A'] * (r - len(fillers)))
+            else:
+                if delex and slot in ['name', 'developer', 'release_year',
+                                      'exp_release_date'] \
+                         and mr['slots'].get(slot, 'N/A') not in ('N/A', ''):
+                    sf = f'{slot}=PLACEHOLDER'
+                else:
+                    sf = f"{slot}={mr['slots'].get(slot, 'N/A')}"
+                
+                fixed_slot_fillers.append(sf)
+
+        slot_fillers = fixed_slot_fillers
+
+    if order == 'dec_freq_fixed':
+        fixed_slot_fillers = []
+        for slot, _ in sorted(freq_info['slot_counts'].items(),
+                              key=lambda x: x[1], reverse=True):
+            if slot in LIST_SLOTS:
+
+                fillers = [f'{slot}={x}' for x in mr['slots'].get(slot, [])]
+                fillers = sorted(
+                    fillers,
+                    key=lambda x: freq_info['delex_slot_filler_counts'][x],
+                    reverse=True)
+                r = freq_info["list_slot_max_lengths"][slot]
+                fixed_slot_fillers.extend(fillers)
+                if len(fillers) < r:
+                    fixed_slot_fillers.extend(
+                        [f'{slot}=N/A'] * (r - len(fillers)))
+            else:
+                if delex and slot in ['name', 'developer', 'release_year',
+                                      'exp_release_date'] \
+                         and mr['slots'].get(slot, 'N/A') not in ('N/A', ''):
+                    sf = f'{slot}=PLACEHOLDER'
+                else:
+                    sf = f"{slot}={mr['slots'].get(slot, 'N/A')}"
+                
+                fixed_slot_fillers.append(sf)
+
+        slot_fillers = fixed_slot_fillers
+
 
     if return_header:
         return [da, rating] + slot_fillers
@@ -350,7 +466,7 @@ def get_specifier_feats(specifier):
     start_feat = 'V' if specifier[0] in 'aeiou' else 'C'
     return f'SPECIFIER_{start_feat}_{sup_feat}'
 
-def linear_mr2mr(linear_mr):
+def linear_mr2mr(linear_mr, collapse_multi=False):
     mr = {'da': 'N/A', 'slots': {}}
     for sf in linear_mr:
         if '=' in sf:
@@ -372,6 +488,12 @@ def linear_mr2mr(linear_mr):
         else:
             mr['slots'][key] = "|".join(
                 sorted(set(mr['slots'][key].split("|"))))
+
+    if collapse_multi:
+        for k, v in mr['slots'].items():
+            if '|' in v:
+                warn(f"unhandled multi filler: {k}={v}")
+
     return mr
 
 def tags2linear_mr(tags, delex=False):
@@ -396,3 +518,8 @@ def tags2mr(tags, delex=False):
     linear_mr = tags2linear_mr(tags, delex)
     return linear_mr2mr(linear_mr)
 
+def remove_header(linear_mr):
+    return linear_mr[2:]
+
+def mr2header(mr):
+    return [mr['da'], f"rating={mr['slots'].get('rating', 'N/A')}"]
