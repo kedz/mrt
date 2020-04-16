@@ -40,7 +40,7 @@ $SCRIPT_DIR/make_slot_filler_frequencies.py \
     $VIGGO_FREQ
 
 echo "Adding Viggo data derived orders..."
-$SCRIPT_DIR/add_simple_orders2.py \
+$SCRIPT_DIR/add_simple_orders.py \
     Viggo \
     $VIGGO_FREQ \
     $VIGGO_TRAIN \
