@@ -266,6 +266,8 @@ def tokenize(text):
 def detokenize(tokens):
     text = ' '.join(tokens)
 
+    text = re.sub(r' <eos>', '', text)
+
     for misc in LEXICON['other']:
         text = re.sub(" " + re.escape(misc) + " ", " " + misc + " ", text, flags=re.I)
 
@@ -484,7 +486,7 @@ def linear_mr2mr(linear_mr, collapse_multi=False):
             mr['da'] = sf
     for key in mr['slots']:
         if key in LIST_SLOTS:
-            mr['slots'][key] = sorted(mr['slots'][key])
+            mr['slots'][key] = sorted(set(mr['slots'][key]))
         else:
             mr['slots'][key] = "|".join(
                 sorted(set(mr['slots'][key].split("|"))))
