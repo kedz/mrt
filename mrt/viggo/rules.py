@@ -25,13 +25,13 @@ def tag_tokens(tokens, specifier=None, **kwargs):
         if t.startswith("SPECIFIER"):
             tags[i] = f'specifier={t}'
     if specifier:
-        feats = get_specifier_feats(specifier)
+#        feats = get_specifier_feats(specifier)
         stoks = word_tokenize(specifier.replace("-", " - ").replace('_', ' '))
         for i, t in enumerate(tokens):
             s = max(i - len(stoks) + 1, 0)
             if tokens[s:i+1] == stoks:
                 for j in range(s, i+1):
-                    tags[j] = f'specifier={feats}'
+                    tags[j] = f'specifier={specifier}'
  
     return tags
 
@@ -5154,3 +5154,6 @@ def check_opts(tokens, tags):
                 tags[j] = 'available_on_steam=no'
             tags[i] = 'has_linux_release=no'
             tags[i-3] = 'has_mac_release=no'
+        if tokens[i-3:i+1] == ["n't", 'available', 'on', 'linux']:
+            for j in range(i-3,i+1):
+                tags[j] = 'has_linux_release=no'

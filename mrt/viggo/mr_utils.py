@@ -100,22 +100,25 @@ def linearize_mr(mr, delex=False, order='random', return_header=True,
         if slot in LIST_SLOTS:
             for item in filler:
                 slot_fillers.append(f'{slot}={item}')
-        elif slot == 'specifier':
-            feats = get_specifier_feats(filler)
-            slot_fillers.append(f'{slot}={feats}')
+#        elif slot == 'specifier':
+#            feats = get_specifier_feats(filler)
+#            slot_fillers.append(f'{slot}={feats}')
         else:
             slot_fillers.append(f'{slot}={filler}')
 
     if delex:
         for i, t in enumerate(slot_fillers):
-            if t.startswith('name'):
+            if t.startswith('name') and not t.endswith('='):
                 slot_fillers[i] = 'name=PLACEHOLDER'
-            if t.startswith('developer'):
+            if t.startswith('developer') and not t.endswith('='):
                 slot_fillers[i] = 'developer=PLACEHOLDER'
-            if t.startswith('release_year'):
+            if t.startswith('release_year') and not t.endswith('='):
                 slot_fillers[i] = 'release_year=PLACEHOLDER'
-            if t.startswith('exp_release_date'):
+            if t.startswith('exp_release_date') and not t.endswith('='):
                 slot_fillers[i] = 'exp_release_date=PLACEHOLDER'
+            if t.startswith('specifier'):
+                feats = get_specifier_feats(t.split('=')[1])
+                slot_fillers[i] = f'specifier={feats}'
 
     if order == 'random':
         random.shuffle(slot_fillers)
@@ -513,6 +516,10 @@ def tags2linear_mr(tags, delex=False):
                 mrseq[i] = 'release_year=PLACEHOLDER'
             if t.startswith('exp_release_date=') and not t.endswith('='):
                 mrseq[i] = 'exp_release_date=PLACEHOLDER'
+            if t.startswith('specifier'):
+                val = t.split('=')[1]
+                feats = get_specifier_feats(val)
+                mrseq[i] = f'specifier={feats}'
 
     return mrseq
 

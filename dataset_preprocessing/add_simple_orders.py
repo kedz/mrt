@@ -117,6 +117,7 @@ def add_orders(path, mr_utils, freq_info, slot_filler_canonical_order,
             # Add corrected MR from rule based tagger.
             sf_seq = example['source']['sequence']['rule_lex']
             new_mr = mr_utils.linear_mr2mr(sf_seq)
+            
             example['source']['mr'] = new_mr
 
             if use_orig_mr:

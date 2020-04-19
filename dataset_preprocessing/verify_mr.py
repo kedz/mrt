@@ -6,71 +6,11 @@ import csv
 import json
 import re
 
+import mrt.e2e.mr_utils
 import mrt.e2e.rules 
 import mrt.viggo.mr_utils
 import mrt.viggo.rules 
 
-CATEGORICAL_SLOTS = {
-    "E2E": [
-        "name", "area", "customer_rating", "eat_type", "near", "food", 
-        "price_range", "family_friendly",
-    ],
-}
-
-def extract_mr(mr_string, categorical_slots, list_slots):
-    m = re.match(r'^(.*?)\((.*)\)$', mr_string)
-    if m:
-        da = m.group(1)
-        da_args = m.group(2)
-    else:
-        # E2E dataset only has inform dialog act so it is not specified.
-        da = 'inform'
-        da_args = mr_string
-        
-    mr = {"da": da, "slots": {}}
-    for slot, vals in re.findall(r'([\w_ ]+)\[(.*?)\]', da_args):
-        slot = re.sub(r'([a-z])([A-Z])', r'\1 \2', slot).lower().strip()
-        slot = slot.replace(' ', '_')
-        if slot in categorical_slots:
-            mr["slots"][slot] = vals
-        elif slot in list_slots:
-            mr["slots"][slot] = sorted(vals.split(", "))
-        elif slot == "specifier":
-            mr["slots"]["specifier"] = vals.replace(" ", "_")
-        else:
-            raise Exception(f"Bad slot: {slot}")
-
-    return mr
-
-
-
-def sf_seq2slots(sf_seq, categorical_slots, list_slots):
-    slots = {}
-    for sf in sf_seq:
-        slot, filler = sf.split("=")
-        if slot in categorical_slots or slot == 'specifier':
-            if slot in slots and filler not in slots[slot]:
-                slots[slot] = slots[slot] + "|" + filler
-            else:
-                slots[slot] = filler
-        elif slot in list_slots:
-            if slot not in slots:
-                slots[slot] = []
-            slots[slot].append(filler)
-        else:
-            raise Exception("Bad slot: " + slot) 
-
-    for slot in list_slots:
-        if slot in slots:
-            slots[slot] = sorted(slots[slot])
-
-    return slots
-
-def mr2slot_seq(mr):
-    seq = []
-    for slot, filler in mr['slots'].items():
-        seq.append(f'{slot}={filler}')
-    return seq
 
 def check_sfseq(gt, pred):
     gt = list(gt)
@@ -154,6 +94,7 @@ def format_example(mr_line, utt_line, rule_set, exid, history):
     # Tag lexicalized and delexicalized token sequences. 
     tags_lex = rules.tag_tokens(tokens_lex, **mr['slots'])
     tags_delex = rules.tag_tokens(tokens_delex, **mr['slots'])
+    print(tokens_lex)
     for tag, tok in zip(tags_lex, tokens_lex):
         print(f"{tag:40s}  {tok}")
     print()
@@ -204,29 +145,18 @@ def format_example(mr_line, utt_line, rule_set, exid, history):
 def compare(pred_mr, gt_slots):
     gt_slots = list(gt_slots)
     sf_seq = list(pred_mr)
-#    ### REMOVE!
-#    gt_slots = [x for x in gt_slots if not x.startswith('eat_t')]
-#    sf_seq = [x for x in sf_seq if not x.startswith('eat_t')]
-#    
-##    ratings = [x for x in set(sf_seq) if x.startswith('customer_')]
-##    if len(ratings) == 2: 
-##        rm_rating = [x for x in ratings if '5' not in x][0]
-##        sf_seq.pop(sf_seq.index(rm_rating))
-##    pr = [x for x in sf_seq if x.startswith('price_')]
-##    if len(pr) == 2: 
-##        rm_pr = [x for x in pr if '£' not in x][0]
-##        sf_seq.pop(sf_seq.index(rm_pr))
-
     return check_sfseq(set(gt_slots), set(sf_seq))
 
 
-def verify_partition(input_path, out_fp, rule_set, history):
+def verify_partition(input_path, save_path, rule_set, history):
 
     with input_path.open('r') as in_fp:
         reader = csv.reader(in_fp)
         next(reader)
         for exid, item in enumerate(reader):
             mr_line, utt_line = item[:2]
+#            if exid < 15088:
+#                continue
             print(exid)
             print(mr_line)
             print(utt_line)
@@ -238,42 +168,51 @@ def verify_partition(input_path, out_fp, rule_set, history):
             while not compare(linear_mr_pair["predicted"], 
                               linear_mr_pair['ground_truth']) \
                     or (
-                        linear_mr_delex_pair['lex'] 
-                            != linear_mr_delex_pair['delex']) \
-                    or detok_pair['lex'] != detok_pair['delex'] \
-                    or (
-                        ref_str_pair['reference'] 
-                            != ref_str_pair['detokenized']) \
+                        set(linear_mr_delex_pair['lex'])
+                            != set(linear_mr_delex_pair['delex'])) \
                     or recheck:
+
+#            while not compare(linear_mr_pair["predicted"], 
+#                              linear_mr_pair['ground_truth']) \
+#                    or (
+#                        linear_mr_delex_pair['lex'] 
+#                            != linear_mr_delex_pair['delex']) \
+#                    or detok_pair['lex'] != detok_pair['delex'] \
+#                    or (
+#                        ref_str_pair['reference'] 
+#                            != ref_str_pair['detokenized']) \
+#                    or recheck:
+
+
 
                 print()
                 print("Reference String")
-                print(ref)
+                print(ref_str_pair['reference'])
                 print("Detokenized String")
-                print(detok_ref)
+                print(ref_str_pair['detokenized'])
                 print()
                 print('Rule MR')
-                print(pred_mr)
+                print(sorted(set(linear_mr_pair['predicted'])))
                 print("Original MR")
-                print(gt_mr)
-
+                print(sorted(set(linear_mr_pair['ground_truth'])))
                 print()
                 print("Rule MR -> Delex")
-                print(pred_mr_lex)
+                print(sorted(set(linear_mr_delex_pair['lex'])))
                 print("Delex -> Rule MR")
-                print(pred_mr_delex)
-                
-                print()
-                print("Detokenized (Lexical)")
-                print(detok_lex)
-                print("Detokenized Lexicalized (Delexical)")
-                print(detok_delex)
-
+                print(sorted(set(linear_mr_delex_pair['delex'])))
+#                print()
+#                print("Detokenized (Lexical)")
+#                print(detok_pair['lex'])
+#                print("Detokenized Lexicalized (Delexical)")
+#                print(detok_pair['delex'])
+#
                 response = input()
                 if response == 'a':
-                    history[exid] = sorted(set(pred_mr))
-                    print(json.dumps([exid, sorted(set(pred_mr))]), 
-                          flush=True, file=out_fp)
+                    save_item = sorted(set(linear_mr_pair["predicted"]))
+                    history[exid] = save_item
+                    with save_path.open('a+') as fp:
+                        print(json.dumps([exid, save_item]),
+                            flush=True, file=fp)
                     X = format_example(mr_line, utt_line, rule_set, 
                                        exid, history)
                     (linear_mr_pair, linear_mr_delex_pair, detok_pair, 
@@ -282,7 +221,9 @@ def verify_partition(input_path, out_fp, rule_set, history):
                 if response == 'e':
                     try:
                         import importlib
+                        importlib.reload(mrt.e2e.mr_utils)
                         importlib.reload(mrt.e2e.rules)
+                        importlib.reload(mrt.viggo.mr_utils)
                         importlib.reload(mrt.viggo.rules)
                     except Exception as e:
                         print(e)
@@ -314,11 +255,11 @@ def main():
             for line in fp:
                 exid, mr = eval(line)
                 history[exid] = mr
-
-    with args.save.open('w') as save_fp:
-        for key in sorted(history.keys()):
-            print(json.dumps([key, history[key]]), file=save_fp, flush=True)
-        verify_partition(args.input, save_fp, args.rule_set, history) 
+    if args.load != args.save:
+        with args.save.open('w') as save_fp:
+            for key in sorted(history.keys()):
+                print(json.dumps([key, history[key]]), file=save_fp, flush=True)
+    verify_partition(args.input, args.save, args.rule_set, history) 
 
 if __name__ == '__main__':
     main()
