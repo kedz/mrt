@@ -5970,3 +5970,8 @@
 [11652, ["customer_rating=low", "eat_type=coffee shop", "family_friendly=yes", "food=Italian", "name=The Punter", "near=Caf\u00e9 Sicilia", "price_range=less than \u00a320"]]
 [11929, ["area=riverside", "eat_type=coffee shop", "family_friendly=yes", "food=Indian", "name=The Wrestlers", "near=Raja Indian Cuisine", "price_range=less than \u00a320"]]
 [13945, ["area=riverside", "customer_rating=low", "eat_type=coffee shop", "family_friendly=no", "food=French", "name=The Eagle", "near=Burger King", "price_range=less than \u00a320"]]
+[14807, ["area=city centre", "customer_rating=average", "family_friendly=yes", "food=French", "name=The Waterman", "price_range=less than \u00a320"]]
+[16984, ["eat_type=pub", "family_friendly=no", "food=Indian", "name=The Plough", "near=Caf\u00e9 Rouge", "price_range=high"]]
+[17210, ["area=riverside", "eat_type=pub", "food=French", "name=The Mill", "price_range=less than \u00a320"]]
+[17423, ["area=city centre", "customer_rating=average", "eat_type=restaurant", "family_friendly=yes", "food=French", "name=The Waterman", "price_range=less than \u00a320"]]
+[30524, ["customer_rating=high", "eat_type=pub", "food=Chinese", "name=Wildwood", "price_range=\u00a320-25"]]

@@ -625,3 +625,5 @@
 [4029, ["eat_type=coffee shop", "family_friendly=no", "food=English", "name=The Wrestlers", "near=Raja Indian Cuisine", "price_range=moderate"]]
 [4031, ["area=city centre", "eat_type=coffee shop", "family_friendly=no", "food=English", "name=The Wrestlers", "near=Raja Indian Cuisine", "price_range=cheap"]]
 [4200, ["customer_rating=1 out of 5", "eat_type=coffee shop", "food=Chinese", "name=Wildwood", "near=Ranch", "price_range=high"]]
+[735, ["customer_rating=average", "eat_type=coffee shop", "family_friendly=yes", "food=Chinese", "name=Cocum", "price_range=high"]]
+[3054, ["area=riverside", "eat_type=coffee shop", "food=English", "name=The Mill", "near=The Sorrento", "price_range=less than \u00a320"]]
