@@ -190,6 +190,10 @@ def linearize_mr(mr, delex=False, order='random', return_header=True,
                                       'exp_release_date'] \
                          and mr['slots'].get(slot, 'N/A') not in ('N/A', ''):
                     sf = f'{slot}=PLACEHOLDER'
+                elif delex and slot == 'specifier' \
+                        and mr['slots'].get(slot, 'N/A') not in ('N/A', ''):
+                    feats = get_specifier_feats(mr['slots']['specifier'])
+                    sf = f'{slot}={feats}'
                 else:
                     sf = f"{slot}={mr['slots'].get(slot, 'N/A')}"
                 
@@ -218,6 +222,10 @@ def linearize_mr(mr, delex=False, order='random', return_header=True,
                                       'exp_release_date'] \
                          and mr['slots'].get(slot, 'N/A') not in ('N/A', ''):
                     sf = f'{slot}=PLACEHOLDER'
+                elif delex and slot == 'specifier' \
+                        and mr['slots'].get(slot, 'N/A') not in ('N/A', ''):
+                    feats = get_specifier_feats(mr['slots']['specifier'])
+                    sf = f'{slot}={feats}'
                 else:
                     sf = f"{slot}={mr['slots'].get(slot, 'N/A')}"
                 
