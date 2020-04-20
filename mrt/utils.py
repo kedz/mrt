@@ -137,15 +137,15 @@ def setup_model(arch, rnn_dir, layers, rnn_attn, weight_tying,
 
     return m
 
-def setup_hps_trainer(model, opt, learning_rate, weight_decay, label_smoothing, 
+def setup_hps_trainer(model, optname, learning_rate, weight_decay, label_smoothing, 
                       train_batches, valid_batches, max_steps, dec_vocab,
                       eval_script, mr_utils, save_prefix):
 
-    if opt == 'sgd':
+    if optname == 'sgd':
         opt = SGD(learning_rate, weight_decay=weight_decay)
-    elif opt == 'adam':
+    elif optname == 'adam':
         opt = Adam(learning_rate, weight_decay=weight_decay)
-    elif opt == 'adamtri':
+    elif optname == 'adamtri':
         opt = NoamOpt(512, 1.0, 8000,None)
     else:
         raise Exception(f"Bad optimizer {opt}") 
@@ -221,7 +221,7 @@ def setup_hps_trainer(model, opt, learning_rate, weight_decay, label_smoothing,
             .valid_logger(logger)\
             .save_prefix(save_prefix)
             
-        if opt != 'adamtri':
+        if optname != 'adamtri':
             trainer.add_callback(update_lr)
 
     return trainer
