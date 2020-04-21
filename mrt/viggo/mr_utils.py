@@ -14,14 +14,14 @@ def _delex_tokens(tokens, pattern, placeholder):
     i = 0
     while i < len(tokens):
         s = max(i - len(pattern) + 1, 0)
-        if tokens[s:i+1] == pattern:
+        if [x.lower() for x in tokens[s:i+1]] == pattern:
             tokens = tokens[:s] + [placeholder] + tokens[i+1:]
             i = s + 1
         else:
             i += 1
     return tokens
 
-def delexicalize_tokens(tokens, specifier=None, **kwargs):
+def delexicalize_tokens(tokens, specifier=None, no_dates=False, **kwargs):
     tokens = list(tokens)
 
     for _, patt in DEVELOPER_TOKENS:
@@ -38,25 +38,26 @@ def delexicalize_tokens(tokens, specifier=None, **kwargs):
     tokens = _delex_tokens(tokens, ['half', '-', 'life', '2'], 'NAME')
     tokens = _delex_tokens(tokens, ['spider', '-', 'man'], 'NAME')
 
-    i = 0
-    while i < len(tokens):
-        if re.match('\d\d\d\d', tokens[i]) and tokens[i-1] == ',' \
-                and re.match('\d\d?', tokens[i-2]) \
-                and re.match(MONTHS, tokens[i-3]):
-            tokens = tokens[:i-3] + ["EXP_RELEASE_DATE"] + tokens[i+1:]
-            i = i - 3
+    if not no_dates:
+        i = 0
+        while i < len(tokens):
+            if re.match('\d\d\d\d', tokens[i]) and tokens[i-1] == ',' \
+                    and re.match('\d\d?', tokens[i-2]) \
+                    and re.match(MONTHS, tokens[i-3], flags=re.I):
+                tokens = tokens[:i-3] + ["EXP_RELEASE_DATE"] + tokens[i+1:]
+                i = i - 3
 
-        if tokens[i] == '2019':
-            tokens[i] = 'EXP_RELEASE_DATE'
+            if tokens[i] == '2019':
+                tokens[i] = 'EXP_RELEASE_DATE'
 
-        if re.match('\d\d\d\d', tokens[i]) and tokens[i] != '2019':
-            tokens[i] = 'RELEASE_YEAR'
+            if re.match('\d\d\d\d', tokens[i]) and tokens[i] != '2019':
+                tokens[i] = 'RELEASE_YEAR'
 
-        if re.match("'0\d", tokens[i]):
-            tokens[i] = 'RELEASE_YEAR'
+            if re.match("'0\d", tokens[i]):
+                tokens[i] = 'RELEASE_YEAR'
 
-        i += 1
-        
+            i += 1
+            
     if specifier:
         feats = get_specifier_feats(specifier)
         stoks = word_tokenize(specifier.replace("-", " - ").replace('_', ' '))
@@ -247,6 +248,7 @@ def tokenize(text):
     text = re.sub(r'ltd\. it', r'ltd . it', text)
     text = re.sub(r'ltd\. the', r'ltd . the', text)
     text = re.sub(r'ltd\. you', r'ltd . you', text)
+    texr = re.sub(r'Ltd\. The', 'Ltd . The', text)
     text = re.sub(r' (V)\. ', r' \1 . ', text, flags=re.I)
     text = re.sub(r' M\. ', r' m . ', text, flags=re.I)
     text = re.sub(r' t\. ', r' t . ', text, flags=re.I)
@@ -540,3 +542,27 @@ def remove_header(linear_mr):
 
 def mr2header(mr):
     return [mr['da'], f"rating={mr['slots'].get('rating', 'N/A')}"]
+
+def is_placeholder(token):
+    if token in set(['NAME', 'DEVELOPER', 'EXP_RELEASE_DATE', 'RELEASE_YEAR']):
+        return True
+    else:
+        return token.startswith("SPECIFIER")
+
+def lexicalize_linear_mr(linear_mr, name=None, developer=None, 
+                         release_year=None, exp_release_date=None, 
+                         specifier=None, **kwargs):
+    linear_mr = list(linear_mr)
+    for i, t in enumerate(linear_mr):
+        if t.startswith('name') and name != None:
+            linear_mr[i] = 'name=' + name
+        if t.startswith('developer') and developer != None:
+            linear_mr[i] = 'developer=' + developer
+        if t.startswith('release_year') and release_year != None:
+            linear_mr[i] = 'release_year=' + release_year
+        if t.startswith('exp_release_date') and exp_release_date != None:
+            linear_mr[i] = 'exp_release_date=' + exp_release_date
+        if t.startswith('specifier') and specifier != None:
+            linear_mr[i] = 'specifier=' + specifier
+
+    return linear_mr

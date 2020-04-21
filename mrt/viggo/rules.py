@@ -2,10 +2,12 @@ from nltk import word_tokenize
 import re
 
 from mrt.viggo.meta import NAME_TOKENS, DEVELOPER_TOKENS, MONTHS
-from mrt.viggo.mr_utils import get_specifier_feats
+from mrt.viggo.mr_utils import get_specifier_feats, is_placeholder
 
 
 def tag_tokens(tokens, specifier=None, **kwargs):
+    tokens = list(tokens)
+    tokens = [x.lower() if not is_placeholder(x) else x for x in tokens]
     tags = ['0'] * len(tokens)
     check_exp_release_date(tokens, tags)
     check_release_year(tokens, tags)

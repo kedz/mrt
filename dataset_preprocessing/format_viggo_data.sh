@@ -16,6 +16,11 @@ VIGGO_VALID_AGG=$VIGGO_OUTPUT/Viggo.valid.agg.jsonl
 VIGGO_TEST=$VIGGO_OUTPUT/Viggo.test.jsonl
 VIGGO_TEST_AGG=$VIGGO_OUTPUT/Viggo.test.agg.jsonl
 VIGGO_FREQ=$VIGGO_OUTPUT/Viggo.slot_filler.freqs.json
+VIGGO_PHRASES=$VIGGO_OUTPUT/Viggo.phrases.jsonl
+VIGGO_TEMPLATES=$VIGGO_OUTPUT/Viggo.templates.jsonl
+VIGGO_PHRASES_NOOL=$VIGGO_OUTPUT/Viggo.phrases.no-ol.jsonl
+VIGGO_TEMPLATES_NOOL=$VIGGO_OUTPUT/Viggo.templates.no-ol.jsonl
+
 
 echo "Formatting Viggo training data..."
 $SCRIPT_DIR/format_data.py Viggo \
@@ -59,3 +64,26 @@ $SCRIPT_DIR/aggregate_dataset.py \
     $VIGGO_TEST \
     $VIGGO_TEST_AGG \
     --test 
+
+echo "Generate Viggo Phrase Data"
+$SCRIPT_DIR/generate_phrases.py \
+    Viggo \
+    $VIGGO_FREQ \
+    $VIGGO_TRAIN \
+    $VIGGO_PHRASES \
+    --procs 16
+
+echo "Generate Viggo Templates Data"
+$SCRIPT_DIR/generate_templates.py \
+    Viggo \
+    $VIGGO_FREQ \
+    $VIGGO_TEMPLATES 
+
+echo "Remove test set overlap..."
+$SCRIPT_DIR/remove_overlap.py \
+    Viggo \
+    $VIGGO_PHRASES \
+    $VIGGO_PHRASES_NOOL \
+    $VIGGO_TEMPLATES \
+    $VIGGO_TEMPLATES_NOOL \
+    $VIGGO_TEST

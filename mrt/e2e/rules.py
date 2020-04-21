@@ -5,10 +5,11 @@ import re
 from mrt.e2e.meta import (
     NAME_RE, NEAR_RE, NAMES_TOKENIZED, NEARS_TOKENIZED, LEXICON,
 )
+from mrt.e2e.mr_utils import is_placeholder
 
 
 def tag_tokens(tokens, **kwargs):
-    tokens = [t.lower() if t not in ['NAME', 'NEAR'] else t for t in tokens]
+    tokens = [t if is_placeholder(t) else t.lower() for t in tokens]
     tags = ['0'] * len(tokens)
 
     for i, t in enumerate(tokens):
@@ -3068,6 +3069,11 @@ def tag_tokens(tokens, **kwargs):
         apply_rule(i, tokens, tags, 
                    [ "n't", 'have', 'good', 'customer', 'ratings'],
                    'customer_rating=low')
+        apply_rule(i, tokens, tags, 
+                   ['are', 'family', '-', 'friendly'],
+                   'family_friendly=yes')
+
+
 
         if tokens[i-2:i+1] == ['low', 'quality', 'coffee']:
             tags[i-2] = 'customer_rating=low'
@@ -3140,4 +3146,3 @@ def apply_rule(i, tokens, tags, cond, label):
     if tokens[i-l+1:i+1] == cond:
         for j in range(i-l+1,i+1):
             tags[j] = label
-

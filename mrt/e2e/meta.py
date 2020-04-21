@@ -88,3 +88,6 @@ NEARS_TOKENIZED = [
     [near, near.replace("The ", "").lower().split()]
     for near in LEXICON["near"]
 ]
+
+SLOTS = ['name', 'near', 'area', 'eat_type', 'family_friendly',
+         'price_range', 'customer_rating', 'food']

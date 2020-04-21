@@ -46,7 +46,6 @@ def filter_test_mrs(in_path, out_path, test_mrs, mr_utils):
             if canonical_lmr not in test_mrs:
                 print(json.dumps(example), file=fp)
             else:
-                print(mr['da'])
                 filtered += 1
     rem = total - filtered
     rem_pct = rem / total * 100

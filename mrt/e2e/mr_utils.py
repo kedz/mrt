@@ -267,7 +267,7 @@ def _delex_tokens(tokens, pattern, placeholder):
     i = 0
     while i < len(tokens):
         s = max(i - len(pattern) + 1, 0)
-        if tokens[s:i+1] == pattern:
+        if [x.lower() for x in tokens[s:i+1]] == pattern:
             tokens = tokens[:s] + [placeholder] + tokens[i+1:]
             i = s + 1
         else:
@@ -279,61 +279,61 @@ def delexicalize_tokens(tokens, **kwargs):
 
     i = 0
     while i < len(tokens):
-        if tokens[i-5:i+1] == ['indian', 'cuisine', 'by', 'the', 'rice', 'boat']:
+        if [x.lower() for x in tokens[i-5:i+1]] == ['indian', 'cuisine', 'by', 'the', 'rice', 'boat']:
             tokens = tokens[:i-2] + ['NAME'] + tokens[i+1:]
             i = i - 2
-        if tokens[i-7:i+1] == ['rainbow', 'vegetarian', 'café', 'is', 'near', 'the', 'rice', 'boat']:
+        if [x.lower() for x in tokens[i-7:i+1]] == ['rainbow', 'vegetarian', 'café', 'is', 'near', 'the', 'rice', 'boat']:
             tokens = tokens[:i-2] + ['NAME'] + tokens[i+1:]
             i = i - 2
 
-        if tokens[i-4:i+1] == ['served', 'in', 'the', 'rice', 'boat']:
+        if [x.lower() for x in tokens[i-4:i+1]] == ['served', 'in', 'the', 'rice', 'boat']:
             tokens = tokens[:i-2] + ['NAME'] + tokens[i+1:]
             i = i - 2
-        if tokens[i-4:i+1] == ['next', 'to', 'the', 'rice', 'boat']:
+        if [x.lower() for x in tokens[i-4:i+1]] == ['next', 'to', 'the', 'rice', 'boat']:
             tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
             i = i - 2
-        if tokens[i-3:i+1] == ['near', 'the', 'rice', 'boat']:
+        if [x.lower() for x in tokens[i-3:i+1]] == ['near', 'the', 'rice', 'boat']:
             tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
             i = i - 2
-        if tokens[i-6:i+1] == ['near', 'the', 'river', 'and', 'the', 'rice', 'boat']:
+        if [x.lower() for x in tokens[i-6:i+1]] == ['near', 'the', 'river', 'and', 'the', 'rice', 'boat']:
             tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
             i = i - 2
-        if tokens[i-7:i+1] == ['near', 'the', 'riverside', 'area', 'in', 'the', 'rice', 'boat']:
-            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
-            i = i - 2
-
-        if tokens[i-9:i+1] == ['area', 'city', 'centre', 'for', 'kids', 'friendly', 'in', 'the', 'rice', 'boat']:
-            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
-            i = i - 2
-        if tokens[i-9:i+1] == ['nearby', 'the', 'city', 'centre', 'and', 'the', 'restaurant', 'the', 'rice', 'boat']:
-            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
-            i = i - 2
-        if tokens[i-8:i+1] == ['near', 'to', 'the', 'japanese', 'restaurant', ',', 'the', 'rice', 'boat',]:
-            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
-            i = i - 2
-        if tokens[i-3:i+1] == ['beside', 'the', 'rice', 'boat']:
-            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
-            i = i - 2
-        if tokens[i-4:i+1] == ['near', 'of', 'the', 'rice', 'boat']:
-            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
-            i = i - 2
-        if tokens[i-4:i+1] == ['near', 'to', 'the', 'rice', 'boat']:
-            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
-            i = i - 2
-        if tokens[i-3:i+1] == ['by', 'the', 'rice', 'boat']:
-            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
-            i = i - 2
-        if tokens[i-4:i+1] == ['close', 'to', 'the', 'rice', 'boat']:
-            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
-            i = i - 2
-        if tokens[i-5:i+1] == ['for', 'the', 'restaurant', 'the', 'rice', 'boat']:
+        if [x.lower() for x in tokens[i-7:i+1]] == ['near', 'the', 'riverside', 'area', 'in', 'the', 'rice', 'boat']:
             tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
             i = i - 2
 
-        if tokens[i-14:i+1] == ['loch', 'fyne', 'is', 'english', 'food', 'customer', 'rating', '1', 'out', 'of', '5', 'in', 'the', 'rice', 'boat']:
+        if [x.lower() for x in tokens[i-9:i+1]] == ['area', 'city', 'centre', 'for', 'kids', 'friendly', 'in', 'the', 'rice', 'boat']:
             tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
             i = i - 2
-        if tokens[i-3:i+1] == ['in', 'the', 'rice', 'boat']:
+        if [x.lower() for x in tokens[i-9:i+1]] == ['nearby', 'the', 'city', 'centre', 'and', 'the', 'restaurant', 'the', 'rice', 'boat']:
+            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
+            i = i - 2
+        if [x.lower() for x in tokens[i-8:i+1]] == ['near', 'to', 'the', 'japanese', 'restaurant', ',', 'the', 'rice', 'boat',]:
+            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
+            i = i - 2
+        if [x.lower() for x in tokens[i-3:i+1]] == ['beside', 'the', 'rice', 'boat']:
+            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
+            i = i - 2
+        if [x.lower() for x in tokens[i-4:i+1]] == ['near', 'of', 'the', 'rice', 'boat']:
+            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
+            i = i - 2
+        if [x.lower() for x in tokens[i-4:i+1]] == ['near', 'to', 'the', 'rice', 'boat']:
+            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
+            i = i - 2
+        if [x.lower() for x in tokens[i-3:i+1]] == ['by', 'the', 'rice', 'boat']:
+            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
+            i = i - 2
+        if [x.lower() for x in tokens[i-4:i+1]] == ['close', 'to', 'the', 'rice', 'boat']:
+            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
+            i = i - 2
+        if [x.lower() for x in tokens[i-5:i+1]] == ['for', 'the', 'restaurant', 'the', 'rice', 'boat']:
+            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
+            i = i - 2
+
+        if [x.lower() for x in tokens[i-14:i+1]] == ['loch', 'fyne', 'is', 'english', 'food', 'customer', 'rating', '1', 'out', 'of', '5', 'in', 'the', 'rice', 'boat']:
+            tokens = tokens[:i-2] + ['NEAR'] + tokens[i+1:]
+            i = i - 2
+        if [x.lower() for x in tokens[i-3:i+1]] == ['in', 'the', 'rice', 'boat']:
             tokens = tokens[:i-2] + ['NAME'] + tokens[i+1:]
             i = i - 2
         i += 1
@@ -678,3 +678,16 @@ def remove_header(linear_mr):
 
 def mr2header(mr):
     return []
+
+def is_placeholder(token):
+    return token in ['NAME', 'NEAR']
+
+def lexicalize_linear_mr(linear_mr, name=None, near=None, **kwargs):
+    linear_mr = list(linear_mr)
+    for i, t in enumerate(linear_mr):
+        if t.startswith('name') and name != None:
+            linear_mr[i] = 'name=' + name
+        if t.startswith('near') and near != None:
+            linear_mr[i] = 'near=' + near
+
+    return linear_mr
