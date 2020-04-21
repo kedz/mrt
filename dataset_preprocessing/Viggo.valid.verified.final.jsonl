@@ -8,3 +8,4 @@
 [409, ["genres=simulation", "genres=strategy", "has_multiplayer=no", "name=RollerCoaster Tycoon", "player_perspective=bird view", "release_year=1999"]]
 [412, ["developer=Valve Corporation", "genres=puzzle", "name=Portal 2", "player_perspective=first person"]]
 [676, ["available_on_steam=no", "genres=action", "genres=driving/racing", "has_linux_release=no", "has_mac_release=no", "name=Rollcage", "platforms=PC", "platforms=PlayStation"]]
+[356, ["esrb=M (for Mature)", "has_linux_release=no", "name=Tom Clancy's The Division"]]
