@@ -114,7 +114,7 @@ slot_lexical_items = {
         "ADJ_GAME": ["rated e ( for everyone )"],
         "ADJP_GAME": ["rated e ( for everyone )"],
     },
-    "esrb=E 10+ (for Everyone_10 and Older)": {
+    "esrb=E 10+ (for Everyone 10 and Older)": {
         "ADJ_GAME": ["rated e 10+ ( for everyone 10 and older )"],
         "ADJP_GAME": ["rated e 10+ ( for everyone 10 and older )"],
     },
