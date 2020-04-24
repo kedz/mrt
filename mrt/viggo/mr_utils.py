@@ -105,7 +105,8 @@ def linearize_mr(mr, delex=False, order='random', return_header=True,
 #            feats = get_specifier_feats(filler)
 #            slot_fillers.append(f'{slot}={feats}')
         else:
-            slot_fillers.append(f'{slot}={filler}')
+            for item in filler.split("|"):
+                slot_fillers.append(f'{slot}={item}')
 
     if delex:
         for i, t in enumerate(slot_fillers):
@@ -196,7 +197,15 @@ def linearize_mr(mr, delex=False, order='random', return_header=True,
                     feats = get_specifier_feats(mr['slots']['specifier'])
                     sf = f'{slot}={feats}'
                 else:
-                    sf = f"{slot}={mr['slots'].get(slot, 'N/A')}"
+                    f = mr['slots'].get(slot, 'NA')
+                    if "|" in f:
+                        fs = [f'{slot}={x}' for x in f.split("|")]
+
+                        fs.sort(key=lambda x: freq_info['delex_slot_filler_counts'][x])
+                        sf = fs[-1]                        
+
+                    else:
+                        sf = f"{slot}={mr['slots'].get(slot, 'N/A')}"
                 
                 fixed_slot_fillers.append(sf)
 
@@ -228,7 +237,15 @@ def linearize_mr(mr, delex=False, order='random', return_header=True,
                     feats = get_specifier_feats(mr['slots']['specifier'])
                     sf = f'{slot}={feats}'
                 else:
-                    sf = f"{slot}={mr['slots'].get(slot, 'N/A')}"
+                    f = mr['slots'].get(slot, 'NA')
+                    if "|" in f:
+                        fs = [f'{slot}={x}' for x in f.split("|")]
+
+                        fs.sort(key=lambda x: freq_info['delex_slot_filler_counts'][x])
+                        sf = fs[-1]                        
+
+                    else:
+                        sf = f"{slot}={mr['slots'].get(slot, 'N/A')}"
                 
                 fixed_slot_fillers.append(sf)
 
@@ -539,6 +556,9 @@ def tags2mr(tags, delex=False):
 
 def remove_header(linear_mr):
     return linear_mr[2:]
+
+def get_header(linear_mr):
+    return linear_mr[:2]
 
 def mr2header(mr):
     return [mr['da'], f"rating={mr['slots'].get('rating', 'N/A')}"]
