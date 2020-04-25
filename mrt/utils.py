@@ -15,8 +15,10 @@ def setup_vocab(dataset, lin_strat, delex, datadir='data'):
     src_seq = f"{lin_strat}_{'delex' if delex else 'lex'}" 
     tgt_seq = f"{'delex' if delex else 'lex'}"
 
+    part = 'train.jsonl' if dataset == 'Viggo' else 'train.no-ol.jsonl' 
+
     with plum2.dataset(f"{dataset}.vocab") as ds:
-        ds.jsonl(f"{datadir}/{dataset}/{dataset}.train.jsonl")
+        ds.jsonl(f"{datadir}/{dataset}/{dataset}.{part}")
 
         with ds.vocab("mr") as mr_vcb:
             mr_vcb.apply_indexers(['source', 'sequence', src_seq])\
@@ -49,18 +51,14 @@ def setup_training_data(dataset, lin_strat, delex, mr_vcb, utt_vcb,
     else:
         raise Exception(f"Bad dataset: {dataset}")
 
+    part = 'train.jsonl' if dataset == 'Viggo' else 'train.no-ol.jsonl' 
 
 
     src_seq = f"{lin_strat}_{'delex' if delex else 'lex'}" 
     tgt_seq = f"{'delex' if delex else 'lex'}"
 
     with plum2.dataset(f"{dataset}.train") as ds:
-        orig_ds = ds.jsonl(
-            (
-                f"{datadir}/{dataset}/{dataset}.train"
-                f"{'.no-ol' if dataset == 'E2E' else '' }.jsonl"
-            )
-        )
+        orig_ds = ds.jsonl(f"{datadir}/{dataset}/{dataset}.{part}")
 
         extra_data = []
         if include_phrases:
@@ -108,10 +106,11 @@ def setup_validation_data(dataset, lin_strat, delex, mr_vcb, utt_vcb,
 
     src_seq = f"{lin_strat}_{'delex' if delex else 'lex'}" 
     tgt_seq = f"{'delex' if delex else 'lex'}"
+    part = 'valid.jsonl' if dataset == 'Viggo' else 'valid.no-ol.jsonl' 
 
     with plum2.dataset(f"{dataset}.valid") as ds:
         ds.jsonl(
-            f"{datadir}/{dataset}/{dataset}.valid.jsonl"
+            f"{datadir}/{dataset}/{dataset}.{part}"
         )
         
         # Include original MR dictionary for use in re-lexicalizing decoder
