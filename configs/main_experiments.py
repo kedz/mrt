@@ -111,17 +111,25 @@ model_paths = {
 
     ("Viggo", "gru", "bi", "rule", True): (
         "gru_bi_L=2_attn=bahdanau_tied=False_adam_lr=1e-05_wd=0.0_ls=0.1/"),
+    ("Viggo", "gru", "bi", "inc_freq_fixed", True): ("foo"),
+
+
     ("Viggo", "lstm", "bi", "inc_freq_fixed", True): (
         "foo"),
     ("Viggo", "lstm", "bi", "random", True): (
         "bar"),
 
+    
+    ("E2E", "gru", "bi", "rule", False): ('foo'),
+    ("E2E", "gru", "bi", "inc_freq_fixed", False): ('foo'),
 
 }
 
 
+
 with plum2.dataset('valid-agg') as va_agg_ds:
-    va_agg_ds.jsonl(f"data/{dataset}/{dataset}.valid.agg.jsonl")
+    part = 'valid.no-ol.agg.jsonl' if dataset == 'E2E' else 'valid.agg.jsonl'
+    va_agg_ds.jsonl(f"data/{dataset}/{dataset}.{part}")
  
 
 GENORDER = HP('ORD', 'rule_delex', description='generator order')
