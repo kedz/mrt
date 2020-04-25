@@ -674,7 +674,7 @@ def linearize_mr(mr, delex=False, order='random', return_header=True,
     return slot_fillers
 
 def remove_header(linear_mr):
-    return linear_mr
+    return list(linear_mr)
 
 def mr2header(mr):
     return []
