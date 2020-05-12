@@ -84,6 +84,11 @@ def setup_training_data(dataset, lin_strat, delex, mr_vcb, utt_vcb,
                 tokens = [f'<sos-{phrase}>'] + tokens + [f'<eos-{phrase}>']
             else:
                 tokens = [f'<sos>'] + tokens + [f'<eos>']
+            for token in tokens:
+                if mr_vcb.index(token) == None:
+                    print(ex['source']['mr'])
+                    print(token)
+                    exit()
             return tokens
 
         with ds.feature("encoder_input") as x:
@@ -165,7 +170,8 @@ def make_batches(ds, batch_size, workers, lin_strat, is_delex):
                          workers=workers)
 
 def setup_model(arch, rnn_dir, layers, rnn_attn, weight_tying,
-                mr_vocab, utt_vocab, beam_size=4):
+                mr_vocab, utt_vocab, beam_size=4, no_posemb=False,
+                no_encoder=False):
     if arch in ['gru', 'lstm']:
         if rnn_dir == 'bi':
             with plum2.seq2seq('rnn') as m:
@@ -174,6 +180,8 @@ def setup_model(arch, rnn_dir, layers, rnn_attn, weight_tying,
                     .enc_vocab(mr_vocab).dec_vocab(utt_vocab)\
                     .beam_search(max_steps=100, beam_size=beam_size)\
                     .tie_decoder_embeddings(weight_tying)
+                if no_encoder:
+                    m.no_encoder()
         else:
             with plum2.seq2seq('rnn') as m:
                 m.arch(arch).emb(512).hidden(512).layers(layers)\
@@ -181,6 +189,8 @@ def setup_model(arch, rnn_dir, layers, rnn_attn, weight_tying,
                     .enc_vocab(mr_vocab).dec_vocab(utt_vocab)\
                     .beam_search(max_steps=100, beam_size=beam_size)\
                     .tie_decoder_embeddings(weight_tying)
+                if no_encoder:
+                    m.no_encoder()
     else:
         with plum2.seq2seq('transformer') as m:
             m.arch("transformer").emb(512).hidden(2048).layers(layers)\
@@ -188,7 +198,10 @@ def setup_model(arch, rnn_dir, layers, rnn_attn, weight_tying,
                 .enc_vocab(mr_vocab).dec_vocab(utt_vocab)\
                 .beam_search(max_steps=100, beam_size=beam_size)\
                 .tie_decoder_embeddings(weight_tying)
-
+            if no_posemb:
+                m.no_position_embeddings()
+            if no_encoder:
+                m.no_encoder()
     return m
 
 class NoamOpt:
@@ -229,7 +242,7 @@ class NoamOpt:
 def setup_hps_trainer(model, optname, learning_rate, weight_decay, 
                       label_smoothing, 
                       train_batches, valid_batches, max_steps, dec_vocab,
-                      eval_script, mr_utils, save_prefix):
+                      eval_script, mr_utils, save_prefix, model_type):
 
     if optname == 'sgd':
         opt = SGD(learning_rate, weight_decay=weight_decay)
@@ -297,7 +310,10 @@ def setup_hps_trainer(model, optname, learning_rate, weight_decay,
     orig_batch_size = valid_batches.batch_size
     def reduce_batch_size_on_search(epoch, trainer, results):
         if (epoch + 1) % EVERY == 0:
-            trainer.valid_dataset.batch_size = 1
+            if model_type == "transformer":
+                trainer.valid_dataset.batch_size = 2
+            else:
+                trainer.valid_dataset.batch_size = 16
         else:
             trainer.valid_dataset.batch_size = orig_batch_size
 

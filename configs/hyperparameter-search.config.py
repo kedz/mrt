@@ -26,6 +26,9 @@ model_type = os.getenv("MRT_MODEL_TYPE", "gru")
 tie_dec_emb = os.getenv("MRT_TIE_EMB", "true") == "true"
 eval_script = os.getenv("MRT_EVAL_SCRIPT")
 
+no_posemb = os.getenv("MRT_NO_POSEMB", "false") == "true"
+no_encoder = os.getenv("MRT_NO_ENCODER", "false") == "true"
+
 src_seq = f"{lin_strat}_{'delex' if is_delex else 'lex'}" 
 
 work_dir(
@@ -46,7 +49,8 @@ tr_batches = make_batches(tr_ds, 128, WKRS, lin_strat, is_delex)
 va_batches = make_batches(va_ds, 128, WKRS, lin_strat, is_delex)
 
 model = setup_model(model_type, rnn_dir, L, rnn_attn, tie_dec_emb,
-                    mr_vcb, utt_vcb)
+                    mr_vcb, utt_vcb, no_posemb=no_posemb,
+                    no_encoder=no_encoder)
 
 if dataset == 'Viggo':
     mr_utils = mrt.viggo.mr_utils
@@ -57,20 +61,23 @@ else:
 
 def make_template():
     if model_type in ['gru', 'lstm']:
-        TEMPLATE = "rnn/{lin_strat}_{delex}/{arch}_{dir}_L={layers}_attn={attn}_tied={tied}_{opt}_lr={lr}_wd={wd}_ls={ls}"
+        TEMPLATE = "{no_enc}rnn/{lin_strat}_{delex}/{arch}_{dir}_L={layers}_attn={attn}_tied={tied}_{opt}_lr={lr}_wd={wd}_ls={ls}"
         return TEMPLATE.format(
             lin_strat=lin_strat, delex='delex' if is_delex else 'lex', 
             dir=rnn_dir,
             arch=model_type, layers=int(L), attn=rnn_attn, tied=tie_dec_emb,
             opt=optimizer,
-            lr=float(LR), wd=float(WD), ls=float(LS))
+            lr=float(LR), wd=float(WD), ls=float(LS),
+            no_enc="ne-" if no_encoder else "")
     else:
-        TEMPLATE = "transformer/{lin_strat}_{delex}/posemb_L={layers}_tied={tied}_{opt}_lr={lr}_wd={wd}_ls={ls}"
+        TEMPLATE = "{no_enc}transformer/{lin_strat}_{delex}/{posemb}_L={layers}_tied={tied}_{opt}_lr={lr}_wd={wd}_ls={ls}"
         return TEMPLATE.format(
             lin_strat=lin_strat, delex='delex' if is_delex else 'lex', 
             arch=model_type, layers=int(L), tied=tie_dec_emb,
             opt=optimizer,
-            lr=float(LR), wd=float(WD), ls=float(LS))
+            lr=float(LR), wd=float(WD), ls=float(LS),
+            posemb="no-posemb" if no_posemb else "posemb",
+            no_enc="ne-" if no_encoder else "")
 
 setup_hps_trainer(model, optimizer, LR, WD, LS, tr_batches, va_batches, T, 
-                  utt_vcb, eval_script, mr_utils, make_template)
+                  utt_vcb, eval_script, mr_utils, make_template, model_type)
