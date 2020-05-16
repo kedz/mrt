@@ -6,7 +6,6 @@ from plum2.metrics import Script
 from plum2.optimizer import SGD, Adam
 from plum2.logger import ModelOutputLogger
 
-from mrt.generate_text import GenerateText
 import mrt.viggo.mr_utils
 import mrt.e2e.mr_utils
 
@@ -334,7 +333,7 @@ def setup_hps_trainer(model, optname, learning_rate, weight_decay,
 
 def setup_trainer(model, optname, learning_rate, weight_decay, label_smoothing,
                   train_batches, valid_batches, max_steps, dec_vocab,
-                  eval_script, mr_utils, save_prefix, train_suffix):
+                  eval_script, mr_utils, save_prefix, train_suffix=""):
 
     if optname == 'sgd':
         opt = SGD(learning_rate, weight_decay=weight_decay)
