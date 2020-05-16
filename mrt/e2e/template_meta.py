@@ -120,10 +120,10 @@ slot_lexical_items = {
     "name=Aromi": {
         "NP": ["aromi"],
     },
-    "name=Bibimbap_House": {
+    "name=Bibimbap House": {
         "NP": ["bibimbap house"],
     },
-    "name=Blue_Spice": {
+    "name=Blue Spice": {
         "NP": ["blue spice"],
     },
 
@@ -137,7 +137,7 @@ slot_lexical_items = {
         'ADJP': ['an expensive', 'a high priced'],
         'ADJ': ['expensive', 'high priced'],
     },
-    'price_range=less_than_£20': {
+    'price_range=less than £20': {
         "IN": ['in the less than £ 20 price range',
                'in the under £ 20 price range'], 
         "ADJP_REST": ['an under £ 20',]
@@ -147,7 +147,7 @@ slot_lexical_items = {
         'ADJP': ['a moderately priced'],
         'ADJ': ['moderately priced'],
     },
-    'price_range=more_than_£30': {
+    'price_range=more than £30': {
 
         "IN": ['in the more than £ 30 price range',
                'in the over £ 30 price range'], 

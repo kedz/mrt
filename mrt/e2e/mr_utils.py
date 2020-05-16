@@ -439,20 +439,15 @@ def detokenize(tokens):
 
     return text
 
-def tags2linear_mr(tags, delex=False):
-    nonull_tags = [x for x in tags if x != '0']
-#    if len([x for x in nonull_tags if x == 'name=PLACEHOLDER']) > 1:
-#        N = 1
-#        while 'name=PLACEHOLDER' in nonull_tags:
-#            nonull_tags[nonull_tags.index('name=PLACEHOLDER')] += f'_#{N}'
-#            N += 1
-
-    mrseq = [t for i, t in enumerate(nonull_tags)
-             if nonull_tags[i-1:i] != [t]]
-
-#    for i, t in enumerate(mrseq):
-#        if "#" in t:
-#            mrseq[i] = t.rsplit('_#')[0]
+def tags2linear_mr(tags, delex=False, flip=False):
+    if flip:
+        mrseq = [t for i, t in enumerate(tags)
+                 if tags[i-1:i] != [t]]
+        mrseq = [x for x in mrseq if x != '0']
+    else:
+        mrseq = [x for x in tags if x != '0']
+        mrseq = [t for i, t in enumerate(mrseq)
+                 if mrseq[i-1:i] != [t]]
 
     if delex:
         for i, t in enumerate(mrseq):
@@ -470,9 +465,13 @@ def tags2mr(tags, delex=False):
 def lexicalize_string(text, name=None, near=None, **kwargs):
     
     if name:
+        if "|" in name:
+            name = name.split("|")[0]
         text = re.sub(r'NAME', name, text)
 
     if near:
+        if "|" in near:
+            near = near.split("|")[0]
         text = re.sub(r'NEAR', near, text)
 
     text = text.replace("the The", "the") 
@@ -675,6 +674,9 @@ def linearize_mr(mr, delex=False, order='random', return_header=True,
 
 def remove_header(linear_mr):
     return list(linear_mr)
+
+def get_header(linear_mr):
+    return []
 
 def mr2header(mr):
     return []
