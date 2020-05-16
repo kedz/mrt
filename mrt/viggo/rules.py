@@ -731,6 +731,9 @@ def check_esrb(tokens, tags):
             tags[i+3] = "esrb=E_10+_(for_Everyone_10_and_Older)"
             tags[i+4] = "esrb=E_10+_(for_Everyone_10_and_Older)"
             tags[i+5] = "esrb=E_10+_(for_Everyone_10_and_Older)"
+        if tokens[i:i+4] == ['everyone', '10', 'and', 'up']:
+            for j in range(i,i+4):
+                tags[j] = 'esrb=E_10+_(for_Everyone_10_and_Older)'
         if t == "mature":
             tags[i] = "esrb=M_(for_Mature)"
         if tokens[i:i+2] == ["m", "rating"]:
@@ -3910,9 +3913,217 @@ def check_opts(tokens, tags):
             for j in range(i-6,i+1):
                 tags[j] = 'available_on_steam=no'
 
+        if tokens[i-7:i+1] == ['do', 'you', 'prefer', 'getting', 'your', 'games', 'on', 'steam']:
+            for j in range(i-7,i+1):
+                tags[j] = 'available_on_steam='
+        if tokens[i-7:i+1] == ['is', 'availability', 'of', 'a', 'game', 'on', 'steam', 'important']:
+            for j in range(i-7,i+1):
+                tags[j] = 'available_on_steam='
+
+
+        if tokens[i-13:i+1] == ['do', 'you', 'miss', 'such', 'role', '-', 'playing', 'tactical', 'shooters', 'being', 'released', 'for', 'mac', '?']:
+            tags[i-1] = 'has_mac_release=no'
+            tags[i-2] = 'has_mac_release=no'
+            tags[i-3] = 'has_mac_release=no'
+        if tokens[i-8:i+1] == ['i', 'wish', 'mirror', "'s", 'edge', 'catalyst', 'was', 'on', 'steam',]:
+            tags[i] = 'available_on_steam=no'
+            tags[i-1] = 'available_on_steam=no'
+
+        if tokens[i-4:i+1] == ['do', "n't", 'have', 'steam', 'releases',]:
+            for j in range(i-4,i+1):
+                tags[j] = 'available_on_steam=no'
+        if tokens[i-4:i+1] == ['seemed', 'to', 'lack', 'steam', 'support']:
+            for j in range(i-4,i+1):
+                tags[j] = 'available_on_steam=no'
+
+        if tokens[i-5:i+1] == ['i', 'wish', 'NAME', 'was', 'on', 'steam',]:
+            tags[i] = 'available_on_steam=no'
+            tags[i-1] = 'available_on_steam=no'
+
+        if tokens[i-4:i+1] == ['is', 'there', 'a', 'particular', 'year']:
+            for j in range(i-4,i+1):
+                tags[j] = 'release_year='
+        if tokens[i-7:i+1] == ['what', 'would', 'you', 'say', 'was', 'a', 'memorable', 'year',]:
+            for j in range(i-7,i+1):
+                tags[j] = 'release_year='
         if tokens[i-4:i+1] == ['your', 'favorite', 'esrb', 'content', 'rating']:
             for j in range(i-4,i+1):
                 tags[j] = 'esrb='
+
+        if tokens[i-5:i+1] == ['do', 'you', 'have', 'a', 'favorite', 'esrb']:
+            for j in range(i-5,i+1):
+                tags[j] = 'esrb='
+
+        if tokens[i-11:i+1] == ['are', 'you', 'at', 'all', 'bothered', 'by', 'the', 'esrb', 'rating', 'of', 'a', 'game',]:
+            for j in range(i-11,i+1):
+                tags[j] = 'esrb='
+        if tokens[i-9:i+1] == ['would', 'you', 'not', 'consider', 'a', 'game', 'without', 'a', 'mac', 'release']:
+            for j in range(i-9,i+1):
+                tags[j] = 'has_mac_release='
+        if tokens[i-6:i+1] == ['do', 'you', 'enjoy', 'gaming', 'on', 'a', 'mac',]:
+            for j in range(i-6,i+1):
+                tags[j] = 'has_mac_release='
+
+        if tokens[i-9:i+1] == ['do', 'you', 'do', 'any', 'of', 'your', 'gaming', 'on', 'a', 'linux',]:
+            for j in range(i-9,i+1):
+                tags[j] = 'has_linux_release='
+
+        if tokens[i-12:i+1] == ['is', 'it', 'important', 'for', 'you', 'that', 'a', 'game', 'is', 'also', 'available', 'on', 'linux',]:
+            for j in range(i-12,i+1):
+                tags[j] = 'has_linux_release='
+        if tokens[i-6:i+1] == ['are', 'you', 'more', 'of', 'a', 'multiplayer', 'type']:
+            for j in range(i-6,i+1):
+                tags[j] = 'has_multiplayer='
+        if tokens[i-5:i+1] == ['do', 'you', 'enjoy', 'multiplayer', 'games', 'better',]:
+            for j in range(i-5,i+1):
+                tags[j] = 'has_multiplayer='
+
+        if tokens[i-5:i+1] == ['do', 'you', 'enjoy', 'multiplayer', 'games', '?']:
+            for j in range(i-5,i+1):
+                tags[j] = 'has_multiplayer='
+
+        if tokens[i-8:i+1] == ['do', 'you', 'like', 'to', 'play', 'games', 'on', 'steam', '?']:
+            for j in range(i-8,i+1):
+                tags[j] = 'available_on_steam='
+
+
+        if tokens[i-5:i+1] == ['do', 'you', 'prefer', 'multiplayer', 'games', '?']: 
+            for j in range(i-5,i+1):
+                tags[j] = 'has_multiplayer='
+
+        if tokens[i-7:i+1] == ['do', 'you', 'like', 'to', 'play', 'multiplayer', 'games', '?']: 
+            for j in range(i-7,i+1):
+                tags[j] = 'has_multiplayer='
+        if tokens[i-7:i+1] == ['do', 'you', 'prefer', 'playing', 'games', 'with', 'multiplayer', '?',]: 
+            for j in range(i-7,i+1):
+                tags[j] = 'has_multiplayer='
+        if tokens[i-5:i+1] == ['do', 'you', 'like', 'multiplayer', 'games', '?']: 
+            for j in range(i-5,i+1):
+                tags[j] = 'has_multiplayer='
+        if tokens[i-8:i+1] == ['do', 'you', 'like', 'to', 'play', 'games', 'with', 'multiplayer', '?']: 
+            for j in range(i-8,i+1):
+                tags[j] = 'has_multiplayer='
+        if tokens[i-8:i+1] == ['do', 'you', 'prefer', 'to', 'play', 'games', 'with', 'multiplayer', '?']: 
+            for j in range(i-8,i+1):
+                tags[j] = 'has_multiplayer='
+        if tokens[i-6:i+1] == ['do', 'you', 'have', 'a', 'multiplayer', 'game', '?']: 
+            for j in range(i-6,i+1):
+                tags[j] = 'has_multiplayer='
+        if tokens[i-8:i+1] == ['do', 'you', 'prefer', 'playing', 'games', 'with', 'a', 'multiplayer', '?',]: 
+            for j in range(i-8,i+1):
+                tags[j] = 'has_multiplayer='
+        if tokens[i-4:i+1] == ['what', "'s", 'the', 'best', 'year',]: 
+            for j in range(i-4,i+1):
+                tags[j] = 'release_year='
+        if tokens[i-4:i+1] == ['what', 'is', 'the', 'best', 'year',]: 
+            for j in range(i-4,i+1):
+                tags[j] = 'release_year='
+        if tokens[i-6:i+1] == ['what', 'do', 'you', 'think', 'was', 'the', 'year']: 
+            for j in range(i-6,i+1):
+                tags[j] = 'release_year='
+        if tokens[i-4:i+1] == ['what', 'is', 'your', 'favorite', 'platform']: 
+            for j in range(i-4,i+1):
+                tags[j] = 'platforms='
+
+        if tokens[i-7:i+1] == ['do', 'you', 'prefer', 'games', 'on', 'the', 'mac', '?']:
+            for j in range(i-7,i+1):
+                tags[j] = 'has_mac_release='
+        if tokens[i-6:i+1] == ['do', 'you', 'enjoy', 'games', 'on', 'mac', '?']:
+            for j in range(i-6,i+1):
+                tags[j] = 'has_mac_release='
+        if tokens[i-8:i+1] == ['do', 'you', 'prefer', 'to', 'play', 'games', 'on', 'mac', '?']:
+            for j in range(i-8,i+1):
+                tags[j] = 'has_mac_release='
+        if tokens[i-6:i+1] == ['do', 'you', 'prefer', 'games', 'on', 'mac', '?']:
+            for j in range(i-6,i+1):
+                tags[j] = 'has_mac_release='
+        if tokens[i-8:i+1] == ['do', 'you', 'prefer', 'games', 'with', 'a', 'mac', 'release', '?']:
+            for j in range(i-8,i+1):
+                tags[j] = 'has_mac_release='
+        if tokens[i-8:i+1] == ['do', 'you', 'play', 'games', 'on', 'a', 'mac', 'release', '?']:
+            for j in range(i-8,i+1):
+                tags[j] = 'has_mac_release='
+
+        if tokens[i-6:i+1] == ['do', 'you', 'enjoy', 'games', 'on', 'steam', '?']:
+            for j in range(i-6,i+1):
+                tags[j] = 'available_on_steam='
+        if tokens[i-8:i+1] == ['do', 'you', 'prefer', 'to', 'play', 'games', 'on', 'steam', '?']:
+            for j in range(i-8,i+1):
+                tags[j] = 'available_on_steam='
+        if tokens[i-6:i+1] == ['do', 'you', 'prefer', 'games', 'on', 'steam', '?']:
+            for j in range(i-6,i+1):
+                tags[j] = 'available_on_steam='
+        if tokens[i-8:i+1] == ['do', 'you', 'prefer', 'games', 'with', 'a', 'steam', 'release', '?']:
+            for j in range(i-8,i+1):
+                tags[j] = 'available_on_steam='
+        if tokens[i-8:i+1] == ['do', 'you', 'play', 'games', 'on', 'a', 'steam', 'release', '?']:
+            for j in range(i-8,i+1):
+                tags[j] = 'available_on_steam='
+        if tokens[i-5:i+1] == ['do', 'you', 'play', 'games', 'on', 'steam',]:
+            for j in range(i-5,i+1):
+                tags[j] = 'available_on_steam='
+        if tokens[i-8:i+1] == ['is', 'it', 'a', 'game', 'you', 'can', 'play', 'on', 'steam',]:
+            for j in range(i-8,i+1):
+                tags[j] = 'available_on_steam='
+        if tokens[i-7:i+1] == ['do', 'you', 'have', 'a', 'game', 'on', 'steam', '?',]:
+            for j in range(i-7,i+1):
+                tags[j] = 'available_on_steam='
+        if tokens[i-7:i+1] == ['do', 'you', 'like', 'to', 'play', 'games', 'on', 'steam']:
+            for j in range(i-7,i+1):
+                tags[j] = 'available_on_steam='
+        if tokens[i-5:i+1] == ['not', 'available', 'on', 'steam', 'or', 'mac']:
+            tags[i] = 'has_mac_release=no'
+
+ 
+        if tokens[i-7:i+1] == ['do', 'you', 'prefer', 'games', 'on', 'the', 'linux', '?']:
+            for j in range(i-7,i+1):
+                tags[j] = 'has_linux_release='
+        if tokens[i-6:i+1] == ['do', 'you', 'enjoy', 'games', 'on', 'linux', '?']:
+            for j in range(i-6,i+1):
+                tags[j] = 'has_linux_release='
+        if tokens[i-8:i+1] == ['do', 'you', 'prefer', 'to', 'play', 'games', 'on', 'linux', '?']:
+            for j in range(i-8,i+1):
+                tags[j] = 'has_linux_release='
+        if tokens[i-6:i+1] == ['do', 'you', 'prefer', 'games', 'on', 'linux', '?']:
+            for j in range(i-6,i+1):
+                tags[j] = 'has_linux_release='
+        if tokens[i-8:i+1] == ['do', 'you', 'prefer', 'games', 'with', 'a', 'linux', 'release', '?']:
+            for j in range(i-8,i+1):
+                tags[j] = 'has_linux_release='
+        if tokens[i-8:i+1] == ['do', 'you', 'play', 'games', 'on', 'a', 'linux', 'release', '?']:
+            for j in range(i-8,i+1):
+                tags[j] = 'has_linux_release='
+            
+
+
+        if tokens[i-4:i+1] == ['are', 'you', 'into', 'multiplayer', 'gaming']:
+            for j in range(i-4,i+1):
+                tags[j] = 'has_multiplayer='
+        if tokens[i-6:i+1] == ['do', 'you', 'often', 'check', 'out', 'the', 'multiplayer']:
+            for j in range(i-6,i+1):
+                tags[j] = 'has_multiplayer='
+        if tokens[i-9:i+1] == ['do', 'you', 'like', 'games', 'that', 'you', 'can', 'play', 'in', 'multiplayer']:
+            for j in range(i-9,i+1):
+                tags[j] = 'has_multiplayer='
+
+        if tokens[i-8:i+1] == ['do', 'you', 'prefer', 'playing', 'games', 'with', 'a', 'multiplayer', 'mode']:
+            for j in range(i-8,i+1):
+                tags[j] = 'has_multiplayer='
+
+        if tokens[i-7:i+1] == ['would', 'you', 'say', 'you', 'prefer', 'a', 'certain', 'developer',]:
+            for j in range(i-7,i+1):
+                tags[j] = 'developer='
+        if tokens[i-4:i+1] == ['what', 'developer', 'is', 'top', 'notch']:
+            for j in range(i-4,i+1):
+                tags[j] = 'developer='
+
+        if tokens[i-5:i+1] == ['do', 'you', 'like', 'linux', 'games', 'from']:
+            for j in range(i-5,i+1):
+                tags[j] = '0'
+            tags[3] = 'has_linux_release=yes'
+
+        if tokens[i-5:i+1] == ['what', 'other', 'game', 'do', 'you', 'wish', 'was', 'released', 'for', 'linux',]:
+            tags[i] = 'has_linux_release=no'
 
         if tokens[i-4:i+1] == ['a', 'particular', 'esrb', 'content', 'rating']:
             for j in range(i-4,i+1):
@@ -4291,6 +4502,38 @@ def check_opts(tokens, tags):
             for j in range(i-3,i+1):
                 tags[j] = 'genres='
 
+        if tokens[i-4:i+1] == ['what', 'is', 'your', 'favorite', 'genre']:
+            for j in range(i-4,i+1):
+                tags[j] = 'genres='
+
+        if tokens[i-6:i+1] == ['what', "'s", 'your', 'favorite', 'video', 'game', 'genre']:
+            for j in range(i-6,i+1):
+                tags[j] = 'genres='
+
+        if tokens[i-4:i+1] == ['what', "'s", 'your', 'favorite', 'genre']:
+            for j in range(i-4,i+1):
+                tags[j] = 'genres='
+        if tokens[i-5:i+1] == ['what', 'genres', 'are', 'overall', 'your', 'favorite']:
+            for j in range(i-5,i+1):
+                tags[j] = 'genres='
+        if tokens[i-3:i+1] == ['which', 'is', 'the', 'genre']:
+            for j in range(i-3,i+1):
+                tags[j] = 'genres='
+
+        if tokens[i-8:i+1] == ['do', 'you', 'have', 'a', 'gaming', 'platform', 'you', 'definitely', 'prefer',]:
+            for j in range(i-8,i+1):
+                tags[j] = 'platforms='
+        if tokens[i-3:i+1] == ['is', 'there', 'a', 'platform']:
+            for j in range(i-3,i+1):
+                tags[j] = 'platforms='
+
+        if tokens[i-5:i+1] == ['what', 'player', 'perspective', 'do', 'you', 'prefer',]:
+            for j in range(i-5,i+1):
+                tags[j] = 'player_perspective='
+        if tokens[i-4:i+1] == ['is', 'there', 'a', 'player', 'perspective',]:
+            for j in range(i-4,i+1):
+                tags[j] = 'player_perspective='
+
         if tokens[i-6:i+1] == ['wish', 'they', 'had', 'released', 'a', 'linux', 'version']:
             for j in range(i-6,i+1):
                 tags[j] = 'has_linux_release=no'
@@ -4376,6 +4619,8 @@ def check_opts(tokens, tags):
         if tokens[i-16:i+1] == ['just', 'cool', 'enough', 'to', 'not', 'be', 'for', 'kids', 'and', 'just', 'mediocre', 'enough', 'to', 'not', 'be', 'for', 'adults',]:
             for j in range(i-16,i+1):
                 tags[j] = 'esrb=T_(for_Teen)'
+        if tokens[i-3:i+1] == ['have', 'you', 'played', 'teen',]:
+            tags[i] = 'esrb=T_(for_Teen)'
 
         if tokens[i-4:i+1] == ['without', 'the', 'availability', 'of', 'multiplayer']:
             for j in range(i-4,i+1):
@@ -4568,9 +4813,39 @@ def check_opts(tokens, tags):
             for j in range(i-4,i+1):
                 tags[j] = 'platforms='
 
+        if tokens[i-4:i+1] == ['other', 'games', 'that', 'lack', 'multiplayer']:
+            tags[i-1] = 'has_multiplayer=no'
+            tags[i] = 'has_multiplayer=no'
+
         if tokens[i-9:i+1] == ['i', 'wish', 'there', 'was', 'multiplayer', ',', 'but', 'there', 'is', "n't"]:
             for j in range(i-9,i+1):
                 tags[j] = 'has_multiplayer=no'
+        if tokens[i-5:i+1] == [ 'games', 'like', 'it', 'that', 'ignore', 'multiplayer',]:
+            for j in range(i-5,i+1):
+                tags[j] = 'has_multiplayer=no'
+
+        if tokens[i-8:i+1] == ['it', 'can', 'not', 'be', 'played', 'as', 'a', 'multiplayer', 'game']:
+            for j in range(i-8,i+1):
+                tags[j] = 'has_multiplayer=no'
+        if tokens[i-7:i+1] == ['do', "n't", 'care', 'about', 'getting', 'games', 'on', 'steam',]:
+                tags[i] = 'available_on_steam=no'
+                tags[i-1] = 'available_on_steam=no'
+        if tokens[i-9:i+1] == ['you', 'do', "n't", 'care', 'about', 'your', 'games', 'being', 'on', 'steam',]:
+                tags[i] = 'available_on_steam=no'
+                tags[i-1] = 'available_on_steam=no'
+        if tokens[i-8:i+1] == ['it', 'should', 'have', 'been', 'released', 'for', 'linux', 'and', 'mac']:
+            tags[i] = 'has_mac_release=no'
+            tags[i-2] = 'has_linux_release=no'
+            tags[i-3] = 'has_linux_release=no'
+            tags[i-4] = 'has_linux_release=no'
+        if tokens[i-5:i+1] == ["n't", 'available', 'for', 'linux', 'and', 'mac']:
+            tags[i] = 'has_mac_release=no'
+        if tokens[i-8:i+1] == ['you', 'do', "n't", 'seem', 'to', 'be', 'into', 'multiplayer', 'games']:
+            for j in range(i-8,i+1):
+                tags[j] = 'has_multiplayer=no'
+        if tokens[i-4:i+1] == ['wish', 'was', 'released', 'for', 'linux',]:
+            for j in range(i-4,i+1):
+                tags[j] = 'has_linux_release=no'
 
         if tokens[i-5:i+1] == ["n't", 'released', 'for', 'linux', 'and', 'mac']:
             for j in range(i-5,i-1):
@@ -5159,3 +5434,14 @@ def check_opts(tokens, tags):
         if tokens[i-3:i+1] == ["n't", 'available', 'on', 'linux']:
             for j in range(i-3,i+1):
                 tags[j] = 'has_linux_release=no'
+        if tokens[i-2:i+1] == ['racing', '/', 'driving']:
+            tags[i-2] = 'genres=driving/racing'
+            tags[i-1] = 'genres=driving/racing'
+            tags[i] = 'genres=driving/racing'
+
+        if tokens[i-2:i+1] == ['driving', '/', 'racing']:
+            tags[i-2] = 'genres=driving/racing'
+            tags[i-1] = 'genres=driving/racing'
+            tags[i] = 'genres=driving/racing'
+
+

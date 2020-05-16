@@ -528,10 +528,15 @@ def linear_mr2mr(linear_mr, collapse_multi=False):
 
     return mr
 
-def tags2linear_mr(tags, delex=False):
-    nonull_tags = [x for x in tags if x != '0']
-    mrseq = [t for i, t in enumerate(nonull_tags)
-             if nonull_tags[i-1:i] != [t]]
+def tags2linear_mr(tags, delex=False, flip=False):
+    if flip:
+        mrseq = [t for i, t in enumerate(tags)
+                 if tags[i-1:i] != [t]]
+        mrseq = [x for x in mrseq if x != '0']
+    else:
+        mrseq = [x for x in tags if x != '0']
+        mrseq = [t for i, t in enumerate(mrseq)
+                 if mrseq[i-1:i] != [t]]
 
     if delex:
         for i, t in enumerate(mrseq):
@@ -586,3 +591,20 @@ def lexicalize_linear_mr(linear_mr, name=None, developer=None,
             linear_mr[i] = 'specifier=' + specifier
 
     return linear_mr
+
+def delexicalize_linear_mr(linear_mr):
+    delex_lmr = []
+    for t in linear_mr:
+        if t.startswith('name') and not t.endswith("="):
+            t = 'name=PLACEHOLDER'
+        elif t.startswith('developer') and not t.endswith("="):
+            t = 'developer=PLACEHOLDER'
+        elif t.startswith('release_year') and not t.endswith("="):
+            t = 'release_year=PLACEHOLDER'
+        elif t.startswith('exp_release_date') and not t.endswith("="):
+            t = 'exp_release_date=PLACEHOLDER'
+        elif t.startswith('specifier') and not t.endswith("="):
+            spec = t.split('=')[1]
+            t = f'specifier={get_specifier_feats(spec)}'
+        delex_lmr.append(t)
+    return delex_lmr
