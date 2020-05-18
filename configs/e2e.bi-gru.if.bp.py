@@ -18,7 +18,7 @@ import mrt.viggo.mr_utils as mr_utils
 
 def main():
     parser = argparse.ArgumentParser(
-        "Train Viggo transformer model (ls=inc freq, da=base+templates)")
+        "Train Viggo transformer model (ls=inc freq, da=base+phrases)")
     parser.add_argument("output_dir", type=Path, help="save directory")
     parser.add_argument("--seed", type=int, default=234222452)
     parser.add_argument("--layers", default=2, type=int, help="num layers")
@@ -55,7 +55,7 @@ def main():
 
     mr_vcb, utt_vcb = setup_vocab(dataset, lin_strat, is_delex)
     tr_ds = setup_training_data(dataset, lin_strat, is_delex, mr_vcb, utt_vcb,
-                                include_templates=True)
+                                include_phrases=True)
     va_ds = setup_validation_data(dataset, lin_strat, is_delex,
                                   mr_vcb, utt_vcb)
 
@@ -71,7 +71,7 @@ def main():
     trainer = setup_trainer(model, args.opt, args.lr, args.wd, args.ls, 
                             tr_batches, va_batches, args.max_epochs, 
                             utt_vcb, eval_script, mr_utils, 
-                            lambda: f"E2E/bi-gru/if/base+templates/{args.seed}")
+                            lambda: f"E2E/bi-gru/if/base+phrases/{args.seed}")
 
     env = {'proj_dir': args.output_dir, "gpu": args.gpu}
     trainer.run(env, verbose=True)
